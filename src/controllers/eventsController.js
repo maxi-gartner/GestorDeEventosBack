@@ -1,18 +1,51 @@
-export const eventsController = {
-  getEvents: (req, res) => {
-    res.status(200).send("Events");
+import eventSchema from "../models/eventSchema.js";
+
+const eventsController = {
+  async getEvents(req, res) {
+    try {
+      const event = await eventSchema.find();
+      res.status(200).json(event);
+    } catch (error) {
+      console.log(error);
+    }
   },
-  getOneEvent: (req, res) => {
-    res.status(200).send("Event");
+
+  async getOneEvent(req, res) {
+    try {
+      const event = await eventSchema.findById(req.params.id);
+      res.status(200).json(event);
+    } catch (error) {
+      console.log(error);
+    }
   },
-  createEvent: (req, res) => {
-    res.status(200).send("Created");
-  },
-  updateEvent: (req, res) => {
-    res.status(200).send("Updated");
-  },
-  deleteEvent: (req, res) => {
-    res.status(200).send("Deleted");
+
+  async createEvent(req, res) {
+    try {
+      const {
+        place,
+        date,
+        name,
+        photo,
+        description,
+        attendees,
+        minimumAge,
+        organizer,
+      } = req.body;
+      const event = await eventSchema.create({
+        place,
+        date,
+        name,
+        photo,
+        description,
+        attendees,
+        minimumAge,
+        organizer,
+      });
+      res.status(200).json(event);
+    } catch (error) {
+      console.log(error);
+    }
   },
 };
+
 export default eventsController;

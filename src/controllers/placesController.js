@@ -1,20 +1,29 @@
-export const placesController = {
-  getPlaces: (req, res) => {
-    res.status(200).send("Places");
+import placeSchema from "../models/placeSchema.js";
+
+const placesController = {
+  async getPlaces(req, res) {
+    try {
+      const places = await placeSchema.find();
+      res.status(200).json(places);
+    } catch (error) {
+      console.log(error);
+    }
   },
-
-  getOnePlace: (req, res) => {
-    res.status(200).send("Place");
+  async getOnePlace(req, res) {
+    try {
+      const place = await placeSchema.findById(req.params.id);
+      res.status(200).json(place);
+    } catch (error) {
+      console.log(error);
+    }
   },
-
-  createPlace: (req, res) => {},
-
-  updatePlace: (req, res) => {
-    res.status(200).send("Updated");
-  },
-
-  deletePlace: (req, res) => {
-    res.status(200).send("Deleted");
+  async createPlace(req, res) {
+    try {
+      const place = await placeSchema.create(req.body);
+      res.status(200).json(place);
+    } catch (error) {
+      console.log(error);
+    }
   },
 };
 

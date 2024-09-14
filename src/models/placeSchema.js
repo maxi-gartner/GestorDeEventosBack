@@ -15,6 +15,6 @@ let schema = new Schema(
 );
 
 let collection = "places";
-let placeSchema = mongoose.model(schema, collection);
+let placeSchema = mongoose.model(collection, schema);
 
 export default placeSchema;

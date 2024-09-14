@@ -18,6 +18,6 @@ let schema = new Schema(
 );
 
 let collection = "events";
-let eventSchema = mongoose.model(schema, collection);
+let eventSchema = mongoose.model(collection, schema);
 
 export default eventSchema;
