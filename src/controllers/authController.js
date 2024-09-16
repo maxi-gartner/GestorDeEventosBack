@@ -1,4 +1,5 @@
 import userSchema from "../models/userSchema.js";
+import responses from "./responses.js";
 
 const authController = {
   async register(req, res) {
@@ -13,34 +14,53 @@ const authController = {
         genre,
         role,
       });
-      res.status(200).json(user);
+      return responses.success(res, user, "User created");
     } catch (error) {
-      console.log(error);
+      return responses.error(res, error, "User not created");
     }
   },
   async login(req, res) {
     try {
       const { email, password } = req.body;
       const user = await userSchema.findOne({ email, password });
-      res.status(200).json(user);
+      return responses.success(res, user, "User logged in");
     } catch (error) {
-      console.log(error);
-    }
-  },
-  async logout(req, res) {
-    try {
-      res.status(200).send("Logout");
-    } catch (error) {
-      console.log(error);
+      return responses.error(res, error, "User not logged in");
     }
   },
 
   async getUsers(req, res) {
     try {
       const users = await userSchema.find();
-      res.status(200).json(users);
+      return responses.success(res, users, "Users retrieved");
     } catch (error) {
-      console.log(error);
+      return responses.error(res, error, "Users not retrieved");
+    }
+  },
+
+  async getOneUser(req, res) {
+    try {
+      const userId = req.params.id;
+      const user = await userSchema.findById(userId);
+      if (!user) {
+        return responses.error(res, null, "User not found");
+      }
+      return responses.success(res, user, "User retrieved");
+    } catch (error) {
+      return responses.error(res, error, "User not retrieved");
+    }
+  },
+
+  async deleteUser(req, res) {
+    try {
+      const userId = req.params.id;
+      const user = await userSchema.findByIdAndDelete(userId);
+      if (!user) {
+        return responses.error(res, null, "User not found");
+      }
+      return responses.success(res, user, "User deleted");
+    } catch (error) {
+      return responses.error(res, error, "User not deleted");
     }
   },
 };
