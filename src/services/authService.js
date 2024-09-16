@@ -1,8 +1,31 @@
+import userSchema from "../models/userSchema.js";
+import bcrypt from "bcrypt";
+
 const authService = {
   async createUser(data) {
     try {
-      const user = await userSchema.create(data);
-      return { success: true, data: user };
+      const email = await userSchema.findOne({ email: data.email });
+      if (email) {
+        return { success: false, error: "Email already exists" };
+      }
+      const passwordHash = bcrypt.hashSync(data.password || "", 10);
+      data.password = passwordHash;
+      const newUser = await userSchema.create(data);
+      return { success: true, data: newUser };
+    } catch (error) {
+      return { success: false, error: error };
+    }
+  },
+  async login(data) {
+    try {
+      const email = await userSchema.findOne({ email: data.email });
+      if (!email) {
+        return { success: false, error: "Email or password not found" };
+      }
+      if (!bcrypt.compareSync(data.password, email.password)) {
+        return { success: false, error: "Email or password not found" };
+      }
+      return { success: true, data: email };
     } catch (error) {
       return { success: false, error: error };
     }
@@ -43,15 +66,6 @@ const authService = {
       const user = await userSchema.findByIdAndUpdate(id, data, {
         new: true,
       });
-      return { success: true, data: user };
-    } catch (error) {
-      return { success: false, error: error };
-    }
-  },
-
-  async login(email, password) {
-    try {
-      const user = await userSchema.findOne({ email, password });
       return { success: true, data: user };
     } catch (error) {
       return { success: false, error: error };
