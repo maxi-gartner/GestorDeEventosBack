@@ -1,47 +1,70 @@
-import eventSchema from "../models/eventSchema.js";
+import eventService from "../services/eventService.js";
 import responses from "./responses.js";
 
 const eventsController = {
-  async getEvents(req, res) {
+  async createEvent(req, res) {
     try {
-      const event = await eventSchema.find();
-      return responses.success(res, event, "Events retrieved");
+      const result = await eventService.createEvent(req.body);
+
+      if (!result.success) {
+        return responses.error(res, result.error, "Event not created");
+      }
+
+      return responses.success(res, result.data, "Event created");
     } catch (error) {
-      return responses.error(res, error, "Events not retrieved");
+      return responses.error(res, error.message, "Error creating event");
     }
+  },
+
+  async getEvents(req, res) {
+    const result = await eventService.getEvents();
+    if (!result.success) {
+      return responses.error(res, result.error, "Events not retrieved");
+    }
+    return responses.success(res, result.data, "Events retrieved");
   },
 
   async getOneEvent(req, res) {
-    try {
-      const event = await eventSchema.findById(req.params.id);
-      if (!event) {
-        return responses.error(res, null, "Event not found");
-      }
-      return responses.success(res, event, "Event retrieved");
-    } catch (error) {
-      return responses.error(res, error, "Event not retrieved");
+    const result = await eventService.getOneEvent(req.params.id);
+    if (!result.success) {
+      return responses.error(res, result.error, "Event not found");
     }
-  },
-
-  async createEvent(req, res) {
-    try {
-      const event = await eventSchema.create(req.body);
-      responses.success(res, event, "Event created");
-    } catch (error) {
-      responses.error(res, error, "Event not created");
-    }
+    return responses.success(res, result.data, "Event retrieved");
   },
 
   async deleteEvent(req, res) {
-    try {
-      const event = await eventSchema.findByIdAndDelete(req.params.id);
-      if (!event) {
-        return responses.error(res, null, "Event not found");
-      }
-      return responses.success(res, event, "Event deleted");
-    } catch (error) {
-      return responses.error(res, error, "Event not deleted");
+    const result = await eventService.deleteEvent(req.params.id);
+    if (!result.success) {
+      return responses.error(res, result.error, "Event not deleted");
     }
+    return responses.success(res, result.data, "Event deleted");
+  },
+
+  async updateEvent(req, res) {
+    const result = await eventService.updateEvent(req.params.id, req.body);
+    if (!result.success) {
+      return responses.error(res, result.error, "Event not updated");
+    }
+    return responses.success(res, result.data, "Event updated");
+  },
+
+  async registerToEvent(req, res) {
+    const result = await eventService.registerToEvent(
+      req.params.userId,
+      req.params.eventId
+    );
+    if (!result.success) {
+      return responses.error(
+        res,
+        result.error,
+        "User not registered for event"
+      );
+    }
+    return responses.success(
+      res,
+      result.data,
+      "User successfully registered for event"
+    );
   },
 };
 

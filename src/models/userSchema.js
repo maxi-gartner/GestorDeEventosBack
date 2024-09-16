@@ -10,7 +10,7 @@ let schema = new Schema(
     password: { type: String, required: true },
     age: { type: Number, required: true },
     genre: { type: String, required: true },
-    events: [{ type: Types.ObjectId, ref: "event" }],
+    events: [{ type: Types.ObjectId, ref: "events" }],
     role: { type: String, required: true },
   },
   {

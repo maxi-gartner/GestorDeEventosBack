@@ -1,47 +1,45 @@
-import placeSchema from "../models/placeSchema.js";
+import placeService from "../services/placeService.js";
 import responses from "./responses.js";
 
 const placesController = {
   async createPlace(req, res) {
-    try {
-      const place = await placeSchema.create(req.body);
-      return responses.success(res, place, "Place created");
-    } catch (error) {
-      return responses.error(res, error, "Place not created");
+    const result = await placeService.createPlace(req.body);
+    if (!result.success) {
+      return responses.error(res, result.error, "Place not created");
     }
+    return responses.success(res, result.data, "Place created");
   },
 
   async getPlaces(req, res) {
-    try {
-      const places = await placeSchema.find();
-      return responses.success(res, places, "Places retrieved");
-    } catch (error) {
-      return responses.error(res, error, "user not retrieved");
+    const result = await placeService.getPlaces();
+    if (!result.success) {
+      return responses.error(res, result.error, "Places not retrieved");
     }
+    return responses.success(res, result.data, "Places retrieved");
   },
 
   async getOnePlace(req, res) {
-    try {
-      const place = await placeSchema.findById(req.params.id);
-      if (!place) {
-        return responses.error(res, null, "Place not found");
-      }
-      return responses.success(res, place, "Place retrieved");
-    } catch (error) {
-      return responses.error(res, error, "Place not retrieved");
+    const result = await placeService.getOnePlace(req.params.id);
+    if (!result.success) {
+      return responses.error(res, result.error, "Place not found");
     }
+    return responses.success(res, result.data, "Place retrieved");
   },
 
   async deletePlace(req, res) {
-    try {
-      const place = await placeSchema.findByIdAndDelete(req.params.id);
-      if (!place) {
-        return responses.error(res, null, "Place not found");
-      }
-      return responses.success(res, place, "Place deleted");
-    } catch (error) {
-      return responses.error(res, error, "Place not deleted");
+    const result = await placeService.deletePlace(req.params.id);
+    if (!result.success) {
+      return responses.error(res, result.error, "Place not deleted");
     }
+    return responses.success(res, result.data, "Place deleted");
+  },
+
+  async updatePlace(req, res) {
+    const result = await placeService.updatePlace(req.params.id, req.body);
+    if (!result.success) {
+      return responses.error(res, result.error, "Place not updated");
+    }
+    return responses.success(res, result.data, "Place updated");
   },
 };
 

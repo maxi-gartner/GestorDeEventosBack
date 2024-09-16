@@ -1,58 +1,50 @@
-import userSchema from "../models/userSchema.js";
+import authService from "../services/authService.js";
 import responses from "./responses.js";
 
 const authController = {
-  async register(req, res) {
-    try {
-      const user = await userSchema.create(req.body);
-      return responses.success(res, user, "User created");
-    } catch (error) {
-      return responses.error(res, error, "User not created");
+  async createUser(req, res) {
+    const result = await authService.createUser(req.body);
+    if (!result.success) {
+      return responses.error(res, result.error, "User not created");
     }
-  },
-  async login(req, res) {
-    try {
-      const { email, password } = req.body;
-      const user = await userSchema.findOne({ email, password });
-      return responses.success(res, user, "User logged in");
-    } catch (error) {
-      return responses.error(res, error, "User not logged in");
-    }
+    return responses.success(res, result.data, "User created");
   },
 
   async getUsers(req, res) {
-    try {
-      const users = await userSchema.find();
-      return responses.success(res, users, "Users retrieved");
-    } catch (error) {
-      return responses.error(res, error, "Users not retrieved");
+    const result = await authService.getUsers();
+    if (!result.success) {
+      return responses.error(res, result.error, "Users not retrieved");
     }
+    return responses.success(res, result.data, "Users retrieved");
   },
-
   async getOneUser(req, res) {
-    try {
-      const userId = req.params.id;
-      const user = await userSchema.findById(userId);
-      if (!user) {
-        return responses.error(res, null, "User not found");
-      }
-      return responses.success(res, user, "User retrieved");
-    } catch (error) {
-      return responses.error(res, error, "User not retrieved");
+    const result = await authService.getOneUser(req.params.id);
+    if (!result.success) {
+      return responses.error(res, result.error, "User not found");
     }
+    return responses.success(res, result.data, "User retrieved");
+  },
+  async deleteUser(req, res) {
+    const result = await authService.deleteUser(req.params.id);
+    if (!result.success) {
+      return responses.error(res, result.error, "User not deleted");
+    }
+    return responses.success(res, result.data, "User deleted");
+  },
+  async login(req, res) {
+    const result = await authService.login(req.body);
+    if (!result.success) {
+      return responses.error(res, result.error, "Login failed");
+    }
+    return responses.success(res, result.data, "Login successful");
   },
 
-  async deleteUser(req, res) {
-    try {
-      const userId = req.params.id;
-      const user = await userSchema.findByIdAndDelete(userId);
-      if (!user) {
-        return responses.error(res, null, "User not found");
-      }
-      return responses.success(res, user, "User deleted");
-    } catch (error) {
-      return responses.error(res, error, "User not deleted");
+  async updateUser(req, res) {
+    const result = await authService.updateUser(req.params.id, req.body);
+    if (!result.success) {
+      return responses.error(res, result.error, "User not updated");
     }
+    return responses.success(res, result.data, "User updated");
   },
 };
 
