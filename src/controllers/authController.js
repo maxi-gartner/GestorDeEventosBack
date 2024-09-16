@@ -4,16 +4,7 @@ import responses from "./responses.js";
 const authController = {
   async register(req, res) {
     try {
-      const { name, lastname, email, password, age, genre, role } = req.body;
-      const user = await userSchema.create({
-        name,
-        lastname,
-        email,
-        password,
-        age,
-        genre,
-        role,
-      });
+      const user = await userSchema.create(req.body);
       return responses.success(res, user, "User created");
     } catch (error) {
       return responses.error(res, error, "User not created");

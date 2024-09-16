@@ -4,14 +4,7 @@ import responses from "./responses.js";
 const placesController = {
   async createPlace(req, res) {
     try {
-      const { name, address, photo, date, ocupancy } = req.body;
-      const place = await placeSchema.create({
-        name,
-        address,
-        photo,
-        date,
-        ocupancy,
-      });
+      const place = await placeSchema.create(req.body);
       return responses.success(res, place, "Place created");
     } catch (error) {
       return responses.error(res, error, "Place not created");
@@ -30,6 +23,9 @@ const placesController = {
   async getOnePlace(req, res) {
     try {
       const place = await placeSchema.findById(req.params.id);
+      if (!place) {
+        return responses.error(res, null, "Place not found");
+      }
       return responses.success(res, place, "Place retrieved");
     } catch (error) {
       return responses.error(res, error, "Place not retrieved");
