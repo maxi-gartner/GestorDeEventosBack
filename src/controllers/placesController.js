@@ -1,28 +1,50 @@
 import placeSchema from "../models/placeSchema.js";
+import responses from "./responses.js";
 
 const placesController = {
+  async createPlace(req, res) {
+    try {
+      const { name, address, photo, date, ocupancy } = req.body;
+      const place = await placeSchema.create({
+        name,
+        address,
+        photo,
+        date,
+        ocupancy,
+      });
+      return responses.success(res, place, "Place created");
+    } catch (error) {
+      return responses.error(res, error, "Place not created");
+    }
+  },
+
   async getPlaces(req, res) {
     try {
       const places = await placeSchema.find();
-      res.status(200).json(places);
+      return responses.success(res, places, "Places retrieved");
     } catch (error) {
-      console.log(error);
+      return responses.error(res, error, "user not retrieved");
     }
   },
+
   async getOnePlace(req, res) {
     try {
       const place = await placeSchema.findById(req.params.id);
-      res.status(200).json(place);
+      return responses.success(res, place, "Place retrieved");
     } catch (error) {
-      console.log(error);
+      return responses.error(res, error, "Place not retrieved");
     }
   },
-  async createPlace(req, res) {
+
+  async deletePlace(req, res) {
     try {
-      const place = await placeSchema.create(req.body);
-      res.status(200).json(place);
+      const place = await placeSchema.findByIdAndDelete(req.params.id);
+      if (!place) {
+        return responses.error(res, null, "Place not found");
+      }
+      return responses.success(res, place, "Place deleted");
     } catch (error) {
-      console.log(error);
+      return responses.error(res, error, "Place not deleted");
     }
   },
 };
