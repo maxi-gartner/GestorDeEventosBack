@@ -1,5 +1,6 @@
 import eventSchema from "../models/eventSchema.js";
 import userSchema from "../models/userSchema.js";
+import CustomErrors from "../utils/customError.js";
 
 const eventService = {
   async createEvent(data) {
@@ -28,7 +29,7 @@ const eventService = {
 
       return { success: true, data: event };
     } catch (error) {
-      return { success: false, error: error.message };
+      throw new CustomErrors(error.message || "Failed to create event", 400);
     }
   },
 
@@ -37,7 +38,7 @@ const eventService = {
       const events = await eventSchema.find();
       return { success: true, data: events };
     } catch (error) {
-      return { success: false, error: error };
+      throw new CustomErrors(error.message || "Failed to retrieve events", 400);
     }
   },
 
@@ -50,7 +51,7 @@ const eventService = {
         .populate("place");
       return { success: true, data: event };
     } catch (error) {
-      return { success: false, error: error };
+      throw new CustomErrors(error.message || "Failed to retrieve event", 400);
     }
   },
 
@@ -59,7 +60,7 @@ const eventService = {
       const event = await eventSchema.findByIdAndDelete(id);
       return { success: true, data: event };
     } catch (error) {
-      return { success: false, error: error };
+      throw new CustomErrors(error.message || "Failed to delete event", 400);
     }
   },
 
@@ -70,7 +71,7 @@ const eventService = {
       });
       return { success: true, data: event };
     } catch (error) {
-      return { success: false, error: error };
+      throw new CustomErrors(error.message || "Failed to update event", 400);
     }
   },
 
@@ -80,26 +81,26 @@ const eventService = {
 
   async validateEventRegistration(event, user) {
     if (!event) {
-      return { success: false, error: "Event not found" };
+      throw new CustomErrors("Event not found", 404);
     }
     if (!user) {
-      return { success: false, error: "User not found" };
+      throw new CustomErrors("User not found", 404);
     }
 
     if (!Array.isArray(event.attendees)) {
-      return { success: false, error: "Event attendees is not an array" };
+      throw new CustomErrors("Event attendees is not an array", 400);
     }
 
     if (user.age < event.minimumAge) {
-      return { success: false, error: "User is too young" };
+      throw new CustomErrors("User is too young to attend this event", 400);
     }
 
     if (event.attendees.includes(user._id)) {
-      return { success: false, error: "User already registered" };
+      throw new CustomErrors("User is already registered for this event", 400);
     }
 
     if (event.attendees.length >= event.capacity) {
-      return { success: false, error: "Event is full" };
+      throw new CustomErrors("Event is full", 400);
     }
 
     return { success: true };
@@ -113,7 +114,7 @@ const eventService = {
         { new: true }
       );
       if (!eventUpdate) {
-        return { success: false, error: "Event not found" };
+        throw new CustomErrors("Event not found", 404);
       }
 
       const userUpdate = await userSchema.findByIdAndUpdate(
@@ -122,18 +123,21 @@ const eventService = {
         { new: true }
       );
       if (!userUpdate) {
-        return { success: false, error: "User not found" };
+        throw new CustomErrors("User not found", 404);
       }
 
       return {
         success: true,
         data: {
-          event: eventUpdate,
+          event: eventUpdate.populated("attendees"),
           user: userUpdate,
         },
       };
     } catch (error) {
-      return { success: false, error: error.message };
+      throw new CustomErrors(
+        error.message || "Failed to register for event",
+        400
+      );
     }
   },
 };

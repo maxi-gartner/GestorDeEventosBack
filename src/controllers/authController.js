@@ -1,72 +1,78 @@
 import authService from "../services/authService.js";
-import responses from "./responses.js";
+import CustomErrors from "../utils/customError.js";
+import httResponse from "../utils/httResponse.js";
+import mongoose from "mongoose";
+import catched from "../utils/catched.js";
+import userDTO from "../DTO/userDTO.js";
+
+const validateObjectId = (id) => mongoose.Types.ObjectId.isValid(id);
 
 const authController = {
   async createUser(req, res) {
     const data = req.body;
     const emailInDb = await authService.getUserByEmail(data.email);
-    if (!emailInDb) {
-      return responses.error(res, "Email already exists", "User not created");
-    }
-    const result = await authService.createUser(req.body);
-    if (!result.success) {
-      return responses.error(res, result.error, "User not created");
-    }
-    return responses.success(res, result.data, "User created");
+    if (emailInDb) throw new CustomErrors("Email already in use", 400);
+    const result = await authService.createUser(data);
+    const responseFiltered = userDTO(result);
+    httResponse(res, responseFiltered, "User created", 200);
   },
+
   async login(req, res) {
     const data = req.body;
+    console.log(data);
     const emailInDb = await authService.getUserByEmail(data.email);
-    if (!emailInDb) {
-      return responses.error(
-        res,
-        "Email or password not found",
-        "User not logged in"
-      );
-    }
+    console.log(emailInDb);
+    if (!emailInDb) throw new CustomErrors("Email not found", 400);
     const validPassword = authService.checkPassword(
       data.password,
       emailInDb.password
     );
-    if (!validPassword) {
-      return responses.error(
-        res,
-        "Email or password not found",
-        "User not logged in"
-      );
-    }
-    return responses.success(res, emailInDb, "User logged in");
+    if (!validPassword) throw new CustomErrors("Invalid password", 400);
+    const responseFiltered = userDTO(emailInDb);
+    httResponse(res, responseFiltered, "User logged in", 200);
+  },
+
+  async getUsers(req, res) {
+    const result = await authService.getUsers();
+    const responseFiltered = result.map(userDTO);
+    httResponse(res, responseFiltered, "Users retrieved", 200);
   },
 
   async getUsers(req, res) {
     const result = await authService.getUsers();
     if (!result.success) {
-      return responses.error(res, result.error, "Users not retrieved");
+      throw new CustomErrors(result.error, 400);
     }
-    return responses.success(res, result.data, "Users retrieved");
+    const users = result.data;
+    const responseFiltered = users.map(userDTO);
+    httResponse(res, responseFiltered, "Users retrieved", 200);
   },
-  async getOneUser(req, res) {
-    const result = await authService.getOneUser(req.params.id);
-    if (!result.success) {
-      return responses.error(res, result.error, "User not found");
-    }
-    return responses.success(res, result.data, "User retrieved");
-  },
+
   async deleteUser(req, res) {
-    const result = await authService.deleteUser(req.params.id);
-    if (!result.success) {
-      return responses.error(res, result.error, "User not deleted");
-    }
-    return responses.success(res, result.data, "User deleted");
+    const { id } = req.params;
+    if (!validateObjectId(id))
+      throw new CustomErrors("Invalid user ID format", 400);
+    const result = await authService.deleteUser(id);
+    if (!result.success) throw new CustomErrors(result.error, 400);
+    httResponse(res, result.data, "User deleted", 200);
   },
 
   async updateUser(req, res) {
-    const result = await authService.updateUser(req.params.id, req.body);
-    if (!result.success) {
-      return responses.error(res, result.error, "User not updated");
-    }
-    return responses.success(res, result.data, "User updated");
+    const { id } = req.params;
+    if (!validateObjectId(id))
+      throw new CustomErrors("Invalid user ID format", 400);
+    const result = await authService.updateUser(id, req.body);
+    if (!result.success) throw new CustomErrors(result.error, 400);
+    const responseFiltered = userDTO(result.data);
+    httResponse(res, responseFiltered, "User updated", 200);
   },
 };
 
-export default authController;
+export default {
+  createUser: catched(authController.createUser),
+  login: catched(authController.login),
+  getUsers: catched(authController.getUsers),
+  getOneUser: catched(authController.getOneUser),
+  deleteUser: catched(authController.deleteUser),
+  updateUser: catched(authController.updateUser),
+};

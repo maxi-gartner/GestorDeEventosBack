@@ -1,94 +1,74 @@
 import eventService from "../services/eventService.js";
 import authService from "../services/authService.js";
-import responses from "./responses.js";
+import CustomErrors from "../utils/customError.js";
+import httResponse from "../utils/httResponse.js";
+import catched from "../utils/catched.js";
+import eventDTO from "../DTO/eventDTO.js";
 
 const eventsController = {
   async createEvent(req, res) {
-    try {
-      const result = await eventService.createEvent(req.body);
-
-      if (!result.success) {
-        return responses.error(res, result.error, "Event not created");
-      }
-
-      return responses.success(res, result.data, "Event created");
-    } catch (error) {
-      return responses.error(res, error.message, "Error creating event");
-    }
+    const result = await eventService.createEvent(req.body);
+    if (!result.success) throw new CustomErrors(result.error, 400);
+    const responseFiltered = eventDTO(result.data);
+    httResponse(res, responseFiltered, "Event created", 200);
   },
 
   async getEvents(req, res) {
     const result = await eventService.getEvents();
-    if (!result.success) {
-      return responses.error(res, result.error, "Events not retrieved");
-    }
-    return responses.success(res, result.data, "Events retrieved");
+    if (!result.success) throw new CustomErrors(result.error, 400);
+    const responseFiltered = result.data.map(eventDTO);
+    httResponse(res, responseFiltered, "Events retrieved", 200);
   },
 
   async getOneEvent(req, res) {
     const result = await eventService.getOneEvent(req.params.id);
-    if (!result.success) {
-      return responses.error(res, result.error, "Event not found");
-    }
-    return responses.success(res, result.data, "Event retrieved");
+    if (!result.success) throw new CustomErrors(result.error, 400);
+    const responseFiltered = eventDTO(result.data);
+    httResponse(res, responseFiltered, "Event retrieved", 200);
   },
 
   async deleteEvent(req, res) {
     const result = await eventService.deleteEvent(req.params.id);
-    if (!result.success) {
-      return responses.error(res, result.error, "Event not deleted");
-    }
-    return responses.success(res, result.data, "Event deleted");
+    if (!result.success) throw new CustomErrors(result.error, 400);
+    const responseFiltered = eventDTO(result.data);
+    httResponse(res, responseFiltered, "Event deleted", 200);
   },
 
   async updateEvent(req, res) {
     const result = await eventService.updateEvent(req.params.id, req.body);
-    if (!result.success) {
-      return responses.error(res, result.error, "Event not updated");
-    }
-    return responses.success(res, result.data, "Event updated");
+    if (!result.success) throw new CustomErrors(result.error, 400);
+    const responseFiltered = eventDTO(result.data);
+    httResponse(res, responseFiltered, "Event updated", 200);
   },
 
   async registerToEvent(req, res) {
-    try {
-      const user = await authService.searchUserById(req.params.userId);
-      const event = await eventService.searchaEventById(req.params.eventId);
+    const user = await authService.searchUserById(req.params.userId);
+    const event = await eventService.searchaEventById(req.params.eventId);
 
-      if (!user || !event) {
-        return responses.error(res, "User or event not found");
-      }
+    if (!user || !event) throw new CustomErrors("User or event not found", 400);
+    const validation = await eventService.validateEventRegistration(
+      event,
+      user
+    );
 
-      const validation = await eventService.validateEventRegistration(
-        event,
-        user
-      );
+    if (!validation.success) throw new CustomErrors(validation.error, 400);
+    const registration = await eventService.registerToEvent(
+      req.params.userId,
+      req.params.eventId
+    );
 
-      if (!validation.success) {
-        return responses.error(res, validation.error);
-      }
+    if (!registration.success) throw new CustomErrors(registration.error, 400);
 
-      const registration = await eventService.registerToEvent(
-        req.params.userId,
-        req.params.eventId
-      );
-
-      if (!registration.success) {
-        return responses.error(
-          res,
-          registration.error,
-          "User not registered for event"
-        );
-      }
-
-      return responses.success(
-        res,
-        registration.data,
-        "User successfully registered for event"
-      );
-    } catch (error) {
-      return responses.error(res, error.message, "Error registering to event");
-    }
+    const responseFiltered = eventDTO(registration.data.event);
+    httResponse(res, responseFiltered, "Event registered", 200);
   },
 };
 
-export default eventsController;
+export default {
+  createEvent: catched(eventsController.createEvent),
+  getEvents: catched(eventsController.getEvents),
+  getOneEvent: catched(eventsController.getOneEvent),
+  deleteEvent: catched(eventsController.deleteEvent),
+  updateEvent: catched(eventsController.updateEvent),
+  registerToEvent: catched(eventsController.registerToEvent),
+};

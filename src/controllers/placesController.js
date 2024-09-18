@@ -1,46 +1,49 @@
 import placeService from "../services/placeService.js";
-import responses from "./responses.js";
+import httResponse from "../utils/httResponse.js";
+import CustomErrors from "../utils/customError.js";
+import catched from "../utils/catched.js";
+import placeDTO from "../DTO/placeDTO.js";
 
 const placesController = {
   async createPlace(req, res) {
     const result = await placeService.createPlace(req.body);
-    if (!result.success) {
-      return responses.error(res, result.error, "Place not created");
-    }
-    return responses.success(res, result.data, "Place created");
+    if (!result.success) throw new CustomErrors(result.error, 400);
+    const responseFiltered = placeDTO(result.data);
+    httResponse(res, responseFiltered, "Place created", 200);
   },
 
   async getPlaces(req, res) {
     const result = await placeService.getPlaces();
-    if (!result.success) {
-      return responses.error(res, result.error, "Places not retrieved");
-    }
-    return responses.success(res, result.data, "Places retrieved");
+    if (!result.success) throw new CustomErrors(result.error, 400);
+    const responseFiltered = result.data.map(placeDTO);
+    httResponse(res, responseFiltered, "Places retrieved", 200);
   },
 
   async getOnePlace(req, res) {
     const result = await placeService.getOnePlace(req.params.id);
-    if (!result.success) {
-      return responses.error(res, result.error, "Place not found");
-    }
-    return responses.success(res, result.data, "Place retrieved");
+    if (!result.success) throw new CustomErrors(result.error, 404);
+    const responseFiltered = placeDTO(result.data);
+    httResponse(res, responseFiltered, "Place retrieved", 200);
   },
 
   async deletePlace(req, res) {
     const result = await placeService.deletePlace(req.params.id);
-    if (!result.success) {
-      return responses.error(res, result.error, "Place not deleted");
-    }
-    return responses.success(res, result.data, "Place deleted");
+    if (!result.success) throw new CustomErrors(result.error, 404);
+    httResponse(res, result, "Place deleted", 200);
   },
 
   async updatePlace(req, res) {
     const result = await placeService.updatePlace(req.params.id, req.body);
-    if (!result.success) {
-      return responses.error(res, result.error, "Place not updated");
-    }
-    return responses.success(res, result.data, "Place updated");
+    if (!result.success) throw new CustomErrors(result.error, 400);
+    const responseFiltered = placeDTO(result.data);
+    httResponse(res, responseFiltered, "Place updated", 200);
   },
 };
 
-export default placesController;
+export default {
+  createPlace: catched(placesController.createPlace),
+  getPlaces: catched(placesController.getPlaces),
+  getOnePlace: catched(placesController.getOnePlace),
+  deletePlace: catched(placesController.deletePlace),
+  updatePlace: catched(placesController.updatePlace),
+};
