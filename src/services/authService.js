@@ -61,6 +61,10 @@ const authService = {
       return { success: false, error: error };
     }
   },
+
+  async searchUserById(id) {
+    return await userSchema.findById(id);
+  },
 };
 
 export default authService;

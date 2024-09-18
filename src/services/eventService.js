@@ -74,30 +74,39 @@ const eventService = {
     }
   },
 
+  async searchaEventById(id) {
+    return await eventSchema.findById(id);
+  },
+
+  async validateEventRegistration(event, user) {
+    if (!event) {
+      return { success: false, error: "Event not found" };
+    }
+    if (!user) {
+      return { success: false, error: "User not found" };
+    }
+
+    if (!Array.isArray(event.attendees)) {
+      return { success: false, error: "Event attendees is not an array" };
+    }
+
+    if (user.age < event.minimumAge) {
+      return { success: false, error: "User is too young" };
+    }
+
+    if (event.attendees.includes(user._id)) {
+      return { success: false, error: "User already registered" };
+    }
+
+    if (event.attendees.length >= event.capacity) {
+      return { success: false, error: "Event is full" };
+    }
+
+    return { success: true };
+  },
+
   async registerToEvent(userId, eventId) {
     try {
-      const event = await eventSchema.findById(eventId);
-      if (!event) {
-        return { success: false, error: "Event not found" };
-      }
-
-      const user = await userSchema.findById(userId);
-      if (!user) {
-        return { success: false, error: "User not found" };
-      }
-
-      if (user.age < event.minimumAge) {
-        return { success: false, error: "User is too young" };
-      }
-
-      if (event.attendees.includes(userId)) {
-        return { success: false, error: "User already registered" };
-      }
-
-      if (event.attendees.length >= event.capacity) {
-        return { success: false, error: "Event is full" };
-      }
-
       const eventUpdate = await eventSchema.findByIdAndUpdate(
         eventId,
         { $push: { attendees: userId } },

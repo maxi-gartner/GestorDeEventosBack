@@ -6,7 +6,7 @@ let schema = new Schema(
     name: { type: String, required: true },
     address: { type: String, required: true },
     photo: { type: String, default: null },
-    date: [{ type: Types.ObjectId, ref: "events" }],
+    date: [{ type: Types.ObjectId, ref: "events", default: [] }],
     ocupancy: { type: Number, required: true },
   },
   {

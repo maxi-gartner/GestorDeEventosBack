@@ -8,7 +8,7 @@ let schema = new Schema(
     name: { type: String, required: true },
     photo: { type: String, default: null },
     description: { type: String, required: true },
-    attendees: [{ type: Types.ObjectId, ref: "users" }],
+    attendees: [{ type: Types.ObjectId, ref: "users", default: [] }],
     minimumAge: { type: Number, required: true },
     organizer: { type: Types.ObjectId, ref: "users", required: true },
   },

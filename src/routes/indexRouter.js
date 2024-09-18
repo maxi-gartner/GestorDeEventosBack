@@ -6,7 +6,7 @@ import eventsRouter from "./eventsRouter.js";
 const indexRouter = express.Router();
 
 indexRouter.use("/auth", authRouter);
-indexRouter.use("/places", placesRouter);
-indexRouter.use("/events", eventsRouter);
+indexRouter.use("/place", placesRouter);
+indexRouter.use("/event", eventsRouter);
 
 export default indexRouter;
