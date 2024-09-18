@@ -3,11 +3,39 @@ import responses from "./responses.js";
 
 const authController = {
   async createUser(req, res) {
+    const data = req.body;
+    const emailInDb = await authService.getUserByEmail(data.email);
+    if (!emailInDb) {
+      return responses.error(res, "Email already exists", "User not created");
+    }
     const result = await authService.createUser(req.body);
     if (!result.success) {
       return responses.error(res, result.error, "User not created");
     }
     return responses.success(res, result.data, "User created");
+  },
+  async login(req, res) {
+    const data = req.body;
+    const emailInDb = await authService.getUserByEmail(data.email);
+    if (!emailInDb) {
+      return responses.error(
+        res,
+        "Email or password not found",
+        "User not logged in"
+      );
+    }
+    const validPassword = authService.checkPassword(
+      data.password,
+      emailInDb.password
+    );
+    if (!validPassword) {
+      return responses.error(
+        res,
+        "Email or password not found",
+        "User not logged in"
+      );
+    }
+    return responses.success(res, emailInDb, "User logged in");
   },
 
   async getUsers(req, res) {
@@ -30,13 +58,6 @@ const authController = {
       return responses.error(res, result.error, "User not deleted");
     }
     return responses.success(res, result.data, "User deleted");
-  },
-  async login(req, res) {
-    const result = await authService.login(req.body);
-    if (!result.success) {
-      return responses.error(res, result.error, "Login failed");
-    }
-    return responses.success(res, result.data, "Login successful");
   },
 
   async updateUser(req, res) {
