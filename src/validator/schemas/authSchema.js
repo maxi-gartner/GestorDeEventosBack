@@ -25,6 +25,10 @@ const registerSchema = Joi.object({
       "string.pattern.base": "Last name can only contain letters and spaces.",
     }),
 
+  photo: Joi.string().uri().messages({
+    "string.uri": "Photo must be a valid URL.",
+  }),
+
   email: Joi.string().email().required().messages({
     "string.empty": "Email is required.",
     "string.email": "Email must be a valid format.",
@@ -33,9 +37,7 @@ const registerSchema = Joi.object({
   password: Joi.string()
     .min(8)
     .max(30)
-    .regex(
-      /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/
-    ) //verifica que la contraseña contenga al menos 8 caracteres, una mayuscula, una minuscula, un numero y un caracter especial
+    .regex(/^(?=.*[a-zA-Z])(?=.*\d)[A-Za-z\d]{8,}$/) //al menos una letra y un numero
     .required()
     .messages({
       "string.empty": "Password is required.",
@@ -56,30 +58,14 @@ const registerSchema = Joi.object({
     "string.empty": "Genre is required.",
   }),
 
+  events: Joi.array().items(Joi.string()).optional().messages({
+    "array.base": "Events must be an array.",
+  }),
+
   role: Joi.string().valid("admin", "user").required().messages({
     "any.only": "Role must be 'admin' or 'user'.",
     "string.empty": "Role is required.",
   }),
 });
 
-const loginSchema = Joi.object({
-  email: Joi.string().email().required().messages({
-    "string.empty": "Email is required.",
-    "string.email": "Email must be a valid format.",
-  }),
-
-  password: Joi.string().min(8).max(30).required().messages({
-    "string.empty": "Password is required.",
-    "string.min": "Password must be at least 8 characters long.",
-    "string.max": "Password cannot exceed 30 characters.",
-  }),
-});
-
-const validationOptions = {
-  abortEarly: false,
-};
-
-const result = registerSchema.validate(dataToValidate, validationOptions);
-if (result.error) {
-  console.log(result.error.details);
-}
+export default registerSchema;
