@@ -68,4 +68,17 @@ const registerSchema = Joi.object({
   }),
 });
 
-export default registerSchema;
+const loginSchema = Joi.object({
+  email: Joi.string().email().required().messages({
+    "string.empty": "Email is required.",
+    "string.email": "Email must be a valid format.",
+  }),
+
+  password: Joi.string().min(8).max(30).required().messages({
+    "string.empty": "Password is required.",
+    "string.min": "Password must be at least 8 characters long.",
+    "string.max": "Password cannot exceed 30 characters.",
+  }),
+});
+
+export { registerSchema, loginSchema };

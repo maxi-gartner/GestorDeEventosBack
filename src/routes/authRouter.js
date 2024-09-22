@@ -1,12 +1,19 @@
 import express from "express";
 import authController from "../controllers/authController.js";
 import validator from "../validator/validator.js";
-import authSchema from "../validator/schemas/authSchema.js";
+import {
+  registerSchema,
+  loginSchema,
+} from "../validator/schemas/authSchemaJoi.js";
 
 const authRouter = express.Router();
 
-authRouter.post("/register", validator(authSchema), authController.createUser);
-authRouter.get("/login", authController.login);
+authRouter.post(
+  "/register",
+  validator(registerSchema),
+  authController.createUser
+);
+authRouter.get("/login", validator(loginSchema), authController.login);
 authRouter.delete("/:id", authController.deleteUser);
 authRouter.get("/:id", authController.getOneUser);
 authRouter.get("/", authController.getUsers);
