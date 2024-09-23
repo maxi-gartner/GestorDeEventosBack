@@ -4,6 +4,7 @@ import httResponse from "../utils/httResponse.js";
 import mongoose from "mongoose";
 import catched from "../utils/catched.js";
 import userDTO from "../DTO/userDTO.js";
+import jwt from "jsonwebtoken";
 
 const validateObjectId = (id) => mongoose.Types.ObjectId.isValid(id);
 
@@ -13,22 +14,26 @@ const authController = {
     const emailInDb = await authService.getUserByEmail(data.email);
     if (emailInDb) throw new CustomErrors("Email already in use", 400);
     const result = await authService.createUser(data);
-    const responseFiltered = userDTO(result);
+    const token = jwt.sign({ email: result.email }, process.env.JWT_SECRET, {
+      expiresIn: "1h",
+    });
+    const responseFiltered = userDTO(result.data, token);
     httResponse(res, responseFiltered, "User created", 200);
   },
 
   async login(req, res) {
     const data = req.body;
-    console.log(data);
     const emailInDb = await authService.getUserByEmail(data.email);
-    console.log(emailInDb);
-    if (!emailInDb) throw new CustomErrors("Email not found", 400);
+    if (!emailInDb) throw new CustomErrors("Email not found", 401);
     const validPassword = authService.checkPassword(
       data.password,
       emailInDb.password
     );
-    if (!validPassword) throw new CustomErrors("Invalid password", 400);
-    const responseFiltered = userDTO(emailInDb);
+    if (!validPassword) throw new CustomErrors("Invalid password", 401);
+    const token = jwt.sign({ email: emailInDb.email }, process.env.JWT_SECRET, {
+      expiresIn: "1h",
+    });
+    const responseFiltered = userDTO(emailInDb, token);
     httResponse(res, responseFiltered, "User logged in", 200);
   },
 
