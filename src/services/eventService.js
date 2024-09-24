@@ -44,11 +44,7 @@ const eventService = {
 
   async getOneEvent(id) {
     try {
-      const event = await eventSchema
-        .findById(id)
-        .populate("organizer")
-        .populate("attendees")
-        .populate("place");
+      const event = await eventSchema.findById(id);
       return { success: true, data: event };
     } catch (error) {
       throw new CustomErrors(error.message || "Failed to retrieve event", 400);
@@ -113,23 +109,26 @@ const eventService = {
         { $push: { attendees: userId } },
         { new: true }
       );
-      if (!eventUpdate) {
-        throw new CustomErrors("Event not found", 404);
-      }
-
       const userUpdate = await userSchema.findByIdAndUpdate(
         userId,
         { $push: { events: eventId } },
         { new: true }
       );
+      //verificando que los dos se actualicen correctamente
+      if (!eventUpdate) {
+        throw new CustomErrors("Event not found", 404);
+      }
       if (!userUpdate) {
         throw new CustomErrors("User not found", 404);
       }
-
+      /*       console.log("verificacion:", {
+        eventUpdate: eventUpdate,
+        userUpdate: userUpdate,
+      }); */
       return {
         success: true,
         data: {
-          event: eventUpdate.populated("attendees"),
+          event: eventUpdate,
           user: userUpdate,
         },
       };

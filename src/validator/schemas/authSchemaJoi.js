@@ -62,7 +62,7 @@ const registerSchema = Joi.object({
     "array.base": "Events must be an array.",
   }),
 
-  role: Joi.string().valid("admin", "user").required().messages({
+  role: Joi.string().valid("admin", "organizer", "user").required().messages({
     "any.only": "Role must be 'admin' or 'user'.",
     "string.empty": "Role is required.",
   }),

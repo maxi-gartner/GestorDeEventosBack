@@ -42,7 +42,8 @@ const eventsController = {
   },
 
   async registerToEvent(req, res) {
-    const user = await authService.searchUserById(req.params.userId);
+    const user = await authService.searchUserById(req.user._id);
+    //console.log("user", user);
     const event = await eventService.searchaEventById(req.params.eventId);
 
     if (!user || !event) throw new CustomErrors("User or event not found", 400);
@@ -53,12 +54,13 @@ const eventsController = {
 
     if (!validation.success) throw new CustomErrors(validation.error, 400);
     const registration = await eventService.registerToEvent(
-      req.params.userId,
+      req.user._id,
       req.params.eventId
     );
 
     if (!registration.success) throw new CustomErrors(registration.error, 400);
 
+    //console.log("registration", registration);
     const responseFiltered = eventDTO(registration.data.event);
     httResponse(res, responseFiltered, "Event registered", 200);
   },

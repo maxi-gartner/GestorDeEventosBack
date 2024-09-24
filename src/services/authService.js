@@ -85,6 +85,7 @@ const authService = {
   },
 
   async searchUserById(id) {
+    console.log("objectId", id);
     if (!mongoose.Types.ObjectId.isValid(id)) {
       throw new CustomErrors("Invalid user ID format", 400);
     }
