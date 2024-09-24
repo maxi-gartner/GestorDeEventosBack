@@ -4,12 +4,15 @@ import validator from "../validator/validator.js";
 import placeSchema from "../validator/schemas/placeSchemaJoi.js";
 import passport from "../middlewares/passport/passport.js";
 const passportAuthenticate = passport.authenticate("jwt", { session: false });
+import isAdmin from "../middlewares/isAdmin.js";
 
 const placesRouter = express.Router();
 
 placesRouter.post(
   "/create",
   validator(placeSchema),
+  passportAuthenticate,
+  isAdmin,
   placesController.createPlace
 );
 placesRouter.get("/:id", passportAuthenticate, placesController.getOnePlace);

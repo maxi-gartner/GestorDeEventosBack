@@ -91,6 +91,23 @@ const authService = {
     }
     return await userSchema.findById(id);
   },
+
+  async updatePassword(id, password) {
+    try {
+      const passwordHash = bcrypt.hashSync(password, 10);
+      const user = await userSchema.findByIdAndUpdate(
+        id,
+        { password: passwordHash },
+        { new: true }
+      );
+      if (!user) {
+        throw new CustomErrors("User not found", 404);
+      }
+      return { success: true, data: user };
+    } catch (error) {
+      throw new CustomErrors(error.message || "Failed to update password", 400);
+    }
+  },
 };
 
 export default authService;
