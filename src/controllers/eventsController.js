@@ -103,6 +103,32 @@ const eventsController = {
       throw new CustomErrors(error.message, 400);
     }
   },
+
+  async commentEvent(req, res) {
+    try {
+      const user = await authService.searchUserById(req.user._id);
+      const event = await eventService.searchaEventById(req.params.eventId);
+
+      if (!user || !event)
+        throw new CustomErrors("User or event not found", 400);
+
+      const userRegistered = event.attendees.includes(user._id);
+      if (!userRegistered) throw new CustomErrors("User not registered", 400);
+
+      console.log("req.body.comment", req.body.comment);
+      const newComment = {
+        userId: user._id,
+        comment: req.body.comment,
+      };
+      const comment = await eventService.comentEvent(newComment, event._id);
+
+      const responseFiltered = eventDTO(comment.data);
+
+      httResponse(res, responseFiltered, "Event commented", 200);
+    } catch {
+      throw new CustomErrors("User not commented", 400);
+    }
+  },
 };
 
 export default {
@@ -113,4 +139,5 @@ export default {
   updateEvent: catched(eventsController.updateEvent),
   registerToEvent: catched(eventsController.registerToEvent),
   voteEvent: catched(eventsController.voteEvent),
+  commentEvent: catched(eventsController.commentEvent),
 };

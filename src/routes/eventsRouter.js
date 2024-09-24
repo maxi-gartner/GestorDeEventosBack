@@ -39,4 +39,10 @@ eventsRouter.post(
   eventsController.voteEvent
 );
 
+eventsRouter.post(
+  "/comment/:eventId",
+  passportAuthenticate,
+  eventsController.commentEvent
+);
+
 export default eventsRouter;

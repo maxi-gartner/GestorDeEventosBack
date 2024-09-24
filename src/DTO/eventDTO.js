@@ -12,6 +12,7 @@ function eventDTO(event) {
       createdAt: event.createdAt,
       updatedAt: event.updatedAt,
       rating: event.rating,
+      comments: event.comments,
     },
   };
 }

@@ -173,6 +173,22 @@ const eventService = {
       throw new CustomErrors(error.message || "Failed to vote for event", 400);
     }
   },
+
+  async comentEvent(data, eventId) {
+    try {
+      const event = await eventSchema.findByIdAndUpdate(
+        eventId,
+        {
+          $push: { comments: { userId: data.userId, comment: data.comment } },
+        },
+        { new: true }
+      );
+
+      return { success: true, data: event };
+    } catch (error) {
+      throw new CustomErrors(error.message || "Failed to add comment", 400);
+    }
+  },
 };
 
 export default eventService;

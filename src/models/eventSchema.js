@@ -20,7 +20,12 @@ let schema = new Schema(
         },
       ],
     },
-    comments: [{ type: Types.ObjectId, ref: "comments", default: [] }],
+    comments: [
+      {
+        userId: { type: Types.ObjectId, ref: "users" },
+        comment: { type: String, required: true },
+      },
+    ],
   },
   {
     timestamps: true,
