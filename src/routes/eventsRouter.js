@@ -13,6 +13,7 @@ const eventsRouter = express.Router();
 eventsRouter.post(
   "/create",
   validator(eventSchema),
+  passportAuthenticate,
   isOrganizer,
   eventsController.createEvent
 );
@@ -30,6 +31,12 @@ eventsRouter.post(
   passportAuthenticate,
   isUser,
   eventsController.registerToEvent
+);
+
+eventsRouter.post(
+  "/vote/:eventId",
+  passportAuthenticate,
+  eventsController.voteEvent
 );
 
 export default eventsRouter;

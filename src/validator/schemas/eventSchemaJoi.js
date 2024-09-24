@@ -39,6 +39,10 @@ const eventSchema = Joi.object({
   organizer: Joi.string().required().messages({
     "string.empty": "Organizer is required.",
   }),
+
+  comments: Joi.array().items(Joi.string()).messages({
+    "array.base": "Comments must be an array of strings.",
+  }),
 });
 
 export default eventSchema;

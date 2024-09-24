@@ -1,11 +1,4 @@
 function eventDTO(event) {
-  if (!event || !event.place) {
-    throw new Error(
-      "El objeto evento es indefinido o no contiene la propiedad place"
-    );
-  }
-  //console.log(event);
-
   return {
     data: {
       place: event.place,
@@ -18,6 +11,7 @@ function eventDTO(event) {
       organizer: event.organizer,
       createdAt: event.createdAt,
       updatedAt: event.updatedAt,
+      rating: event.rating,
     },
   };
 }

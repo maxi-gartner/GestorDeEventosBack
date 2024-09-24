@@ -4,6 +4,7 @@ import CustomErrors from "../utils/customError.js";
 import httResponse from "../utils/httResponse.js";
 import catched from "../utils/catched.js";
 import eventDTO from "../DTO/eventDTO.js";
+import eventSchema from "../models/eventSchema.js";
 
 const eventsController = {
   async createEvent(req, res) {
@@ -64,6 +65,44 @@ const eventsController = {
     const responseFiltered = eventDTO(registration.data.event);
     httResponse(res, responseFiltered, "Event registered", 200);
   },
+
+  async voteEvent(req, res) {
+    try {
+      const user = await authService.searchUserById(req.user._id);
+      const event = await eventService.searchaEventById(req.params.eventId);
+
+      if (!user || !event)
+        throw new CustomErrors("User or event not found", 400);
+
+      const userRegistered = event.attendees.includes(user._id);
+      if (!userRegistered) throw new CustomErrors("User not registered", 400);
+      const userVoted = event.rating.voters.some((voter) =>
+        voter.userId.equals(user._id)
+      );
+      if (userVoted) throw new CustomErrors("User already voted", 400);
+
+      const votes = await eventService.averageRating(
+        event.rating.voters,
+        req.body.vote
+      );
+
+      const newVote = {
+        totalRatings: votes,
+        voters: [{ userId: user._id, vote: req.body.vote }],
+      };
+      console.log("newVote", newVote);
+
+      const vote = await eventService.voteEvent(req.params.eventId, newVote);
+
+      if (!vote) throw new CustomErrors("Vote not created", 400);
+
+      const responseFiltered = eventDTO(vote.data);
+
+      httResponse(res, responseFiltered, "Event voted", 200);
+    } catch (error) {
+      throw new CustomErrors(error.message, 400);
+    }
+  },
 };
 
 export default {
@@ -73,4 +112,5 @@ export default {
   deleteEvent: catched(eventsController.deleteEvent),
   updateEvent: catched(eventsController.updateEvent),
   registerToEvent: catched(eventsController.registerToEvent),
+  voteEvent: catched(eventsController.voteEvent),
 };

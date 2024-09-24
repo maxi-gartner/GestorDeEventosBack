@@ -139,6 +139,40 @@ const eventService = {
       );
     }
   },
+
+  async averageRating(voters, vote) {
+    try {
+      const existingVotes = voters.map((voter) => voter.vote);
+      const totalVotes = existingVotes.length + 1;
+      const newTotal =
+        existingVotes.reduce((acc, vote) => acc + vote, 0) + vote;
+
+      const result = newTotal / totalVotes;
+      return result;
+    } catch (error) {
+      throw new CustomErrors(
+        error.message || "Failed to calculate average rating",
+        400
+      );
+    }
+  },
+
+  async voteEvent(eventId, vote) {
+    try {
+      const event = await eventSchema.findByIdAndUpdate(
+        eventId,
+        {
+          $set: { "rating.totalRatings": vote.totalRatings },
+          $push: { "rating.voters": vote.voters },
+        },
+        { new: true }
+      );
+
+      return { success: true, data: event };
+    } catch (error) {
+      throw new CustomErrors(error.message || "Failed to vote for event", 400);
+    }
+  },
 };
 
 export default eventService;

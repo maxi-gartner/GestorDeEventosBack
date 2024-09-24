@@ -11,6 +11,16 @@ let schema = new Schema(
     attendees: [{ type: Types.ObjectId, ref: "users", default: [] }],
     minimumAge: { type: Number, required: true },
     organizer: { type: Types.ObjectId, ref: "users", required: true },
+    rating: {
+      totalRatings: { type: Number, default: 0 },
+      voters: [
+        {
+          userId: { type: Types.ObjectId, ref: "users" },
+          vote: { type: Number, required: true },
+        },
+      ],
+    },
+    comments: [{ type: Types.ObjectId, ref: "comments", default: [] }],
   },
   {
     timestamps: true,

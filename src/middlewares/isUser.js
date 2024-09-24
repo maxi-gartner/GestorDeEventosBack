@@ -1,4 +1,5 @@
 import authService from "../services/authService.js";
+import CustomErrors from "../utils/customError.js";
 
 const isUser = async (req, res, next) => {
   try {
