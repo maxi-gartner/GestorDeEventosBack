@@ -44,11 +44,7 @@ const eventService = {
 
   async getOneEvent(id) {
     try {
-      const event = await eventSchema
-        .findById(id)
-        .populate("organizer")
-        .populate("attendees")
-        .populate("place");
+      const event = await eventSchema.findById(id);
       return { success: true, data: event };
     } catch (error) {
       throw new CustomErrors(error.message || "Failed to retrieve event", 400);
@@ -113,23 +109,26 @@ const eventService = {
         { $push: { attendees: userId } },
         { new: true }
       );
-      if (!eventUpdate) {
-        throw new CustomErrors("Event not found", 404);
-      }
-
       const userUpdate = await userSchema.findByIdAndUpdate(
         userId,
         { $push: { events: eventId } },
         { new: true }
       );
+      //verificando que los dos se actualicen correctamente
+      if (!eventUpdate) {
+        throw new CustomErrors("Event not found", 404);
+      }
       if (!userUpdate) {
         throw new CustomErrors("User not found", 404);
       }
-
+      /*       console.log("verificacion:", {
+        eventUpdate: eventUpdate,
+        userUpdate: userUpdate,
+      }); */
       return {
         success: true,
         data: {
-          event: eventUpdate.populated("attendees"),
+          event: eventUpdate,
           user: userUpdate,
         },
       };
@@ -138,6 +137,56 @@ const eventService = {
         error.message || "Failed to register for event",
         400
       );
+    }
+  },
+
+  async averageRating(voters, vote) {
+    try {
+      const existingVotes = voters.map((voter) => voter.vote);
+      const totalVotes = existingVotes.length + 1;
+      const newTotal =
+        existingVotes.reduce((acc, vote) => acc + vote, 0) + vote;
+
+      const result = newTotal / totalVotes;
+      return result;
+    } catch (error) {
+      throw new CustomErrors(
+        error.message || "Failed to calculate average rating",
+        400
+      );
+    }
+  },
+
+  async voteEvent(eventId, vote) {
+    try {
+      const event = await eventSchema.findByIdAndUpdate(
+        eventId,
+        {
+          $set: { "rating.totalRatings": vote.totalRatings },
+          $push: { "rating.voters": vote.voters },
+        },
+        { new: true }
+      );
+
+      return { success: true, data: event };
+    } catch (error) {
+      throw new CustomErrors(error.message || "Failed to vote for event", 400);
+    }
+  },
+
+  async comentEvent(data, eventId) {
+    try {
+      const event = await eventSchema.findByIdAndUpdate(
+        eventId,
+        {
+          $push: { comments: { userId: data.userId, comment: data.comment } },
+        },
+        { new: true }
+      );
+
+      return { success: true, data: event };
+    } catch (error) {
+      throw new CustomErrors(error.message || "Failed to add comment", 400);
     }
   },
 };

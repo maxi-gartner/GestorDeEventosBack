@@ -4,6 +4,7 @@ import CustomErrors from "../utils/customError.js";
 import httResponse from "../utils/httResponse.js";
 import catched from "../utils/catched.js";
 import eventDTO from "../DTO/eventDTO.js";
+import eventSchema from "../models/eventSchema.js";
 
 const eventsController = {
   async createEvent(req, res) {
@@ -42,7 +43,8 @@ const eventsController = {
   },
 
   async registerToEvent(req, res) {
-    const user = await authService.searchUserById(req.params.userId);
+    const user = await authService.searchUserById(req.user._id);
+    //console.log("user", user);
     const event = await eventService.searchaEventById(req.params.eventId);
 
     if (!user || !event) throw new CustomErrors("User or event not found", 400);
@@ -53,14 +55,79 @@ const eventsController = {
 
     if (!validation.success) throw new CustomErrors(validation.error, 400);
     const registration = await eventService.registerToEvent(
-      req.params.userId,
+      req.user._id,
       req.params.eventId
     );
 
     if (!registration.success) throw new CustomErrors(registration.error, 400);
 
+    //console.log("registration", registration);
     const responseFiltered = eventDTO(registration.data.event);
     httResponse(res, responseFiltered, "Event registered", 200);
+  },
+
+  async voteEvent(req, res) {
+    try {
+      const user = await authService.searchUserById(req.user._id);
+      const event = await eventService.searchaEventById(req.params.eventId);
+
+      if (!user || !event)
+        throw new CustomErrors("User or event not found", 400);
+
+      const userRegistered = event.attendees.includes(user._id);
+      if (!userRegistered) throw new CustomErrors("User not registered", 400);
+      const userVoted = event.rating.voters.some((voter) =>
+        voter.userId.equals(user._id)
+      );
+      if (userVoted) throw new CustomErrors("User already voted", 400);
+
+      const votes = await eventService.averageRating(
+        event.rating.voters,
+        req.body.vote
+      );
+
+      const newVote = {
+        totalRatings: votes,
+        voters: [{ userId: user._id, vote: req.body.vote }],
+      };
+      console.log("newVote", newVote);
+
+      const vote = await eventService.voteEvent(req.params.eventId, newVote);
+
+      if (!vote) throw new CustomErrors("Vote not created", 400);
+
+      const responseFiltered = eventDTO(vote.data);
+
+      httResponse(res, responseFiltered, "Event voted", 200);
+    } catch (error) {
+      throw new CustomErrors(error.message, 400);
+    }
+  },
+
+  async commentEvent(req, res) {
+    try {
+      const user = await authService.searchUserById(req.user._id);
+      const event = await eventService.searchaEventById(req.params.eventId);
+
+      if (!user || !event)
+        throw new CustomErrors("User or event not found", 400);
+
+      const userRegistered = event.attendees.includes(user._id);
+      if (!userRegistered) throw new CustomErrors("User not registered", 400);
+
+      console.log("req.body.comment", req.body.comment);
+      const newComment = {
+        userId: user._id,
+        comment: req.body.comment,
+      };
+      const comment = await eventService.comentEvent(newComment, event._id);
+
+      const responseFiltered = eventDTO(comment.data);
+
+      httResponse(res, responseFiltered, "Event commented", 200);
+    } catch {
+      throw new CustomErrors("User not commented", 400);
+    }
   },
 };
 
@@ -71,4 +138,6 @@ export default {
   deleteEvent: catched(eventsController.deleteEvent),
   updateEvent: catched(eventsController.updateEvent),
   registerToEvent: catched(eventsController.registerToEvent),
+  voteEvent: catched(eventsController.voteEvent),
+  commentEvent: catched(eventsController.commentEvent),
 };
