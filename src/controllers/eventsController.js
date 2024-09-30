@@ -15,6 +15,7 @@ const eventsController = {
   },
 
   async getEvents(req, res) {
+    console.log("get events controller");
     const result = await eventService.getEvents();
     if (!result.success) throw new CustomErrors(result.error, 400);
     const responseFiltered = result.data.map(eventDTO);
@@ -76,8 +77,9 @@ const eventsController = {
 
       const userRegistered = event.attendees.includes(user._id);
       if (!userRegistered) throw new CustomErrors("User not registered", 400);
-      const userVoted = event.rating.voters.some((voter) =>
-        voter.userId.equals(user._id)
+      const userVoted = event.rating.voters.some(
+        //some revisa cada uno de los objetos del array
+        (voter) => voter.userId.equals(user._id) //compara los _id
       );
       if (userVoted) throw new CustomErrors("User already voted", 400);
 

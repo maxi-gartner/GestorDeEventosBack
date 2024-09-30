@@ -17,14 +17,21 @@ eventsRouter.post(
   isOrganizer,
   eventsController.createEvent
 );
-eventsRouter.get("/:id", passportAuthenticate, eventsController.getOneEvent);
+eventsRouter.get(
+  "/:id",
+  /*   (req, res, next) => {
+    console.log("Middleware de Passport activado");
+    passportAuthenticate(req, res, next);
+  }, */
+  eventsController.getOneEvent
+);
 eventsRouter.put(
   "/update/:id",
   passportAuthenticate,
   isCreator,
   eventsController.updateEvent
 );
-eventsRouter.get("/", passportAuthenticate, eventsController.getEvents);
+eventsRouter.get("/", /* passportAuthenticate, */ eventsController.getEvents);
 eventsRouter.delete("/:id", passportAuthenticate, eventsController.deleteEvent);
 eventsRouter.post(
   "/register/:eventId",
