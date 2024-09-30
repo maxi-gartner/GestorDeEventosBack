@@ -1,6 +1,7 @@
 function eventDTO(event) {
   return {
     data: {
+      id: event._id,
       place: event.place,
       date: event.date,
       name: event.name,

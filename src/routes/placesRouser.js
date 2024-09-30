@@ -17,6 +17,6 @@ placesRouter.post(
 );
 placesRouter.get("/:id", passportAuthenticate, placesController.getOnePlace);
 placesRouter.delete("/:id", passportAuthenticate, placesController.deletePlace);
-placesRouter.get("/", passportAuthenticate, placesController.getPlaces);
+placesRouter.get("/", /* passportAuthenticate, */ placesController.getPlaces);
 
 export default placesRouter;

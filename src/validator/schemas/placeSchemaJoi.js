@@ -1,13 +1,13 @@
 import Joi from "joi";
 
 const placeSchema = Joi.object({
-  name: Joi.string().min(2).max(20).required().messages({
+  name: Joi.string().min(2).max(30).required().messages({
     "string.empty": "Name is required.",
     "string.min": "Name must be at least 2 characters long.",
     "string.max": "Name cannot exceed 20 characters.",
   }),
 
-  address: Joi.string().min(2).max(20).required().messages({
+  address: Joi.string().min(2).max(30).required().messages({
     "string.empty": "Name is required.",
     "string.min": "Name must be at least 2 characters long.",
     "string.max": "Name cannot exceed 20 characters.",

@@ -10,10 +10,10 @@ const eventSchema = Joi.object({
     "any.required": "Date is required.",
   }),
 
-  name: Joi.string().min(2).max(20).required().messages({
+  name: Joi.string().min(2).max(40).required().messages({
     "string.empty": "Name is required.",
     "string.min": "Name must be at least 2 characters long.",
-    "string.max": "Name cannot exceed 20 characters.",
+    "string.max": "Name cannot exceed 40 characters.",
   }),
 
   photo: Joi.string().uri().allow(null).messages({
@@ -30,7 +30,7 @@ const eventSchema = Joi.object({
     "array.base": "Attendees must be an array of strings.",
   }),
 
-  minimumAge: Joi.number().integer().min(18).required().messages({
+  minimumAge: Joi.number().integer().required().messages({
     "number.base": "Minimum age must be a number.",
     "number.min": "Minimum age must be at least 18 years old.",
     "any.required": "Minimum age is required.",

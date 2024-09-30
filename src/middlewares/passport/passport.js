@@ -11,7 +11,10 @@ const options = {
 };
 
 const fn = async (payload, done) => {
+  console.log("req payload", payload);
   try {
+    console.log("try de passport");
+    console.log("payload", payload);
     const user = await authService.getUserByEmail(payload.email);
     if (!user) return done(null, false);
     return done(null, user);

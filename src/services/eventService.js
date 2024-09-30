@@ -35,7 +35,7 @@ const eventService = {
 
   async getEvents() {
     try {
-      const events = await eventSchema.find();
+      const events = await eventSchema.find().populate("place");
       return { success: true, data: events };
     } catch (error) {
       throw new CustomErrors(error.message || "Failed to retrieve events", 400);
@@ -44,7 +44,16 @@ const eventService = {
 
   async getOneEvent(id) {
     try {
-      const event = await eventSchema.findById(id);
+      // Buscar el evento y poblar el campo 'place'
+      const event = await eventSchema
+        .findById(id)
+        .populate("place")
+        .populate("organizer");
+
+      if (!event) {
+        throw new CustomErrors("Event not found", 404);
+      }
+
       return { success: true, data: event };
     } catch (error) {
       throw new CustomErrors(error.message || "Failed to retrieve event", 400);
