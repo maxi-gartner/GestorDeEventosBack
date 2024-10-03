@@ -1,6 +1,6 @@
 function httResponse(res, data, message, statusCode) {
   res.status(statusCode).json({
-    success: true,
+    success: statusCode < 400,
     response: data,
     message: message,
   });

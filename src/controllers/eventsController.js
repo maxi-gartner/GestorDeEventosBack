@@ -15,7 +15,6 @@ const eventsController = {
   },
 
   async getEvents(req, res) {
-    console.log("get events controller");
     const result = await eventService.getEvents();
     if (!result.success) throw new CustomErrors(result.error, 400);
     const responseFiltered = result.data.map(eventDTO);
@@ -44,27 +43,43 @@ const eventsController = {
   },
 
   async registerToEvent(req, res) {
-    const user = await authService.searchUserById(req.user._id);
-    //console.log("user", user);
-    const event = await eventService.searchaEventById(req.params.eventId);
+    try {
+      // Buscar el usuario
+      const user = await authService.searchUserById(req.user._id);
+      if (!user) {
+        throw new CustomErrors("User not found", 404);
+      }
 
-    if (!user || !event) throw new CustomErrors("User or event not found", 400);
-    const validation = await eventService.validateEventRegistration(
-      event,
-      user
-    );
+      // Buscar el evento
+      const event = await eventService.searchaEventById(req.params.eventId);
+      if (!event) {
+        throw new CustomErrors("Event not found", 404);
+      }
 
-    if (!validation.success) throw new CustomErrors(validation.error, 400);
-    const registration = await eventService.registerToEvent(
-      req.user._id,
-      req.params.eventId
-    );
+      // Validar el registro en el evento
+      const validation = await eventService.validateEventRegistration(
+        event,
+        user
+      );
+      if (!validation.success) {
+        throw new CustomErrors(validation.error, 400);
+      }
 
-    if (!registration.success) throw new CustomErrors(registration.error, 400);
+      // Registrar al usuario en el evento
+      const registration = await eventService.registerToEvent(
+        req.user._id,
+        req.params.eventId
+      );
+      if (!registration.success) {
+        throw new CustomErrors(registration.error, 400);
+      }
 
-    //console.log("registration", registration);
-    const responseFiltered = eventDTO(registration.data.event);
-    httResponse(res, responseFiltered, "Event registered", 200);
+      // Preparar la respuesta
+      const responseFiltered = eventDTO(registration.data.event);
+      httResponse(res, responseFiltered, "Event registered", 200);
+    } catch (error) {
+      throw new CustomErrors(error.message, 400);
+    }
   },
 
   async voteEvent(req, res) {
@@ -92,7 +107,6 @@ const eventsController = {
         totalRatings: votes,
         voters: [{ userId: user._id, vote: req.body.vote }],
       };
-      console.log("newVote", newVote);
 
       const vote = await eventService.voteEvent(req.params.eventId, newVote);
 
@@ -117,7 +131,6 @@ const eventsController = {
       const userRegistered = event.attendees.includes(user._id);
       if (!userRegistered) throw new CustomErrors("User not registered", 400);
 
-      console.log("req.body.comment", req.body.comment);
       const newComment = {
         userId: user._id,
         comment: req.body.comment,
