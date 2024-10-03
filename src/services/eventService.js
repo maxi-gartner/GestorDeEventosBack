@@ -113,6 +113,18 @@ const eventService = {
 
   async registerToEvent(userId, eventId) {
     try {
+      // Buscar el evento y el usuario antes de intentar actualizar
+      const event = await eventSchema.findById(eventId);
+      const user = await userSchema.findById(userId);
+
+      if (!event) {
+        throw new CustomErrors("Event not found", 404);
+      }
+      if (!user) {
+        throw new CustomErrors("User not found", 404);
+      }
+
+      // Actualizar el evento y el usuario
       const eventUpdate = await eventSchema.findByIdAndUpdate(
         eventId,
         { $push: { attendees: userId } },
@@ -123,17 +135,15 @@ const eventService = {
         { $push: { events: eventId } },
         { new: true }
       );
-      //verificando que los dos se actualicen correctamente
+
+      // Verificando que los dos se actualicen correctamente
       if (!eventUpdate) {
-        throw new CustomErrors("Event not found", 404);
+        throw new CustomErrors("Failed to update event", 400);
       }
       if (!userUpdate) {
-        throw new CustomErrors("User not found", 404);
+        throw new CustomErrors("Failed to update user", 400);
       }
-      /*       console.log("verificacion:", {
-        eventUpdate: eventUpdate,
-        userUpdate: userUpdate,
-      }); */
+
       return {
         success: true,
         data: {
