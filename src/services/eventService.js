@@ -1,6 +1,7 @@
 import eventSchema from "../models/eventSchema.js";
 import userSchema from "../models/userSchema.js";
 import CustomErrors from "../utils/customError.js";
+import mongoose from "mongoose";
 
 const eventService = {
   async createEvent(data) {
@@ -111,6 +112,18 @@ const eventService = {
     return { success: true };
   },
 
+  async isRegistered(event, userId) {
+    if (!event || !event.attendees) {
+      return false;
+    }
+    const objectIdUser = new mongoose.Types.ObjectId(userId);
+
+    const isUserRegistered = event.attendees.some((attendee) => {
+      return attendee.equals(objectIdUser);
+    });
+
+    return isUserRegistered;
+  },
   async registerToEvent(userId, eventId) {
     try {
       // Buscar el evento y el usuario antes de intentar actualizar

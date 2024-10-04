@@ -5,6 +5,7 @@ import httResponse from "../utils/httResponse.js";
 import catched from "../utils/catched.js";
 import eventDTO from "../DTO/eventDTO.js";
 import eventSchema from "../models/eventSchema.js";
+import e from "express";
 
 const eventsController = {
   async createEvent(req, res) {
@@ -144,6 +145,24 @@ const eventsController = {
       throw new CustomErrors("User not commented", 400);
     }
   },
+
+  async isRegistered(req, res) {
+    try {
+      const event = await eventService.searchaEventById(req.params.id);
+      const isUserRegistered = await eventService.isRegistered(
+        event,
+        req.user._id
+      );
+      console.log("response en isRegistered", isUserRegistered);
+
+      return res.json({ isRegistered: isUserRegistered });
+    } catch (error) {
+      console.error("Error en isRegistered:", error);
+      return res
+        .status(500)
+        .json({ error: "Error al verificar si está registrado" });
+    }
+  },
 };
 
 export default {
@@ -155,4 +174,5 @@ export default {
   registerToEvent: catched(eventsController.registerToEvent),
   voteEvent: catched(eventsController.voteEvent),
   commentEvent: catched(eventsController.commentEvent),
+  isRegistered: catched(eventsController.isRegistered),
 };

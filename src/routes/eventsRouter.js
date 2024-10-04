@@ -10,6 +10,17 @@ import isUser from "../middlewares/isUser.js";
 
 const eventsRouter = express.Router();
 
+const consoleLog = (req, res, next) => {
+  console.log("Middleware de Passport activado");
+  next();
+};
+
+eventsRouter.get(
+  "/registered/:id",
+  passportAuthenticate,
+  eventsController.isRegistered
+);
+
 eventsRouter.post(
   "/create",
   validator(eventSchema),
