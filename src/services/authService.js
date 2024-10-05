@@ -5,7 +5,6 @@ import mongoose from "mongoose";
 
 const authService = {
   async getUserByEmail(email) {
-    console.log("Search email....");
     return await userSchema.findOne({ email });
   },
 

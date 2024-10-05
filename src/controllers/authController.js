@@ -25,16 +25,23 @@ const authController = {
     const data = req.body;
     const emailInDb = await authService.getUserByEmail(data.email);
     if (!emailInDb) throw new CustomErrors("Email not found", 401);
-    const validPassword = authService.checkPassword(
+    const validPassword = await authService.checkPassword(
       data.password,
       emailInDb.password
     );
     if (!validPassword) throw new CustomErrors("Invalid password", 401);
-    const token = jwt.sign({ email: emailInDb.email }, process.env.JWT_SECRET, {
-      expiresIn: "1h",
-    });
+    const token = jwt.sign(
+      { email: emailInDb.email },
+      process.env.JWT_SECRET /* , { expiresIn: "3h" } */
+    );
     const responseFiltered = userDTO(emailInDb, token);
     httResponse(res, responseFiltered, "User logged in", 200);
+  },
+
+  async loginWithToken(req, res) {
+    const user = req.user;
+    const userFiltered = userDTO(user);
+    httResponse(res, userFiltered, "User logged in", 200);
   },
 
   async getUsers(req, res) {
@@ -133,4 +140,5 @@ export default {
   deleteUser: catched(authController.deleteUser),
   updateUser: catched(authController.updateUser),
   updatePassword: catched(authController.updatePassword),
+  loginWithToken: catched(authController.loginWithToken),
 };

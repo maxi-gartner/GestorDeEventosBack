@@ -11,7 +11,9 @@ import isUser from "../middlewares/isUser.js";
 const eventsRouter = express.Router();
 
 const consoleLog = (req, res, next) => {
-  console.log("Middleware de Passport activado");
+  console.log("paso por aca");
+  console.log("req", req);
+  console.log("req.user", req.user);
   next();
 };
 

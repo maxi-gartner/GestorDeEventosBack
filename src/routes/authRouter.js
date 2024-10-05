@@ -23,6 +23,12 @@ authRouter.delete("/:id", passportAuthenticate, authController.deleteUser);
 
 authRouter.get("/:id", passportAuthenticate, authController.getOneUser);
 
+authRouter.post(
+  "/loginWithToken",
+  passportAuthenticate,
+  authController.loginWithToken
+);
+
 authRouter.get("/", passportAuthenticate, authController.getUsers);
 
 authRouter.put(
