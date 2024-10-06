@@ -30,6 +30,13 @@ eventsRouter.post(
   isOrganizer,
   eventsController.createEvent
 );
+
+eventsRouter.post(
+  "/unsubscribe/:id",
+  passportAuthenticate,
+  eventsController.unsubscribe
+);
+
 eventsRouter.get(
   "/:id",
   /*   (req, res, next) => {

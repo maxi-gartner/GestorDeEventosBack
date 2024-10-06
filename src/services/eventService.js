@@ -2,6 +2,7 @@ import eventSchema from "../models/eventSchema.js";
 import userSchema from "../models/userSchema.js";
 import CustomErrors from "../utils/customError.js";
 import mongoose from "mongoose";
+import authService from "./authService.js";
 
 const eventService = {
   async createEvent(data) {
@@ -219,6 +220,23 @@ const eventService = {
       return { success: true, data: event };
     } catch (error) {
       throw new CustomErrors(error.message || "Failed to add comment", 400);
+    }
+  },
+
+  async unsubscribe(eventId, user) {
+    try {
+      await userSchema.updateOne(
+        { _id: user._id },
+        { $pull: { events: eventId } }
+      );
+      await eventSchema.updateOne(
+        { _id: eventId },
+        { $pull: { attendees: user._id } }
+      );
+      const currentUserState = await authService.getUserByEmail(user.email);
+      return currentUserState;
+    } catch (error) {
+      throw new CustomErrors(error.message || "Failed to unsubscribe", 400);
     }
   },
 };

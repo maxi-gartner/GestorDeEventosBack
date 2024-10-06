@@ -4,8 +4,7 @@ import CustomErrors from "../utils/customError.js";
 import httResponse from "../utils/httResponse.js";
 import catched from "../utils/catched.js";
 import eventDTO from "../DTO/eventDTO.js";
-import eventSchema from "../models/eventSchema.js";
-import e from "express";
+import userDTO from "../DTO/userDTO.js";
 
 const eventsController = {
   async createEvent(req, res) {
@@ -163,6 +162,16 @@ const eventsController = {
         .json({ error: "Error al verificar si está registrado" });
     }
   },
+
+  async unsubscribe(req, res) {
+    try {
+      const response = await eventService.unsubscribe(req.params.id, req.user);
+      const responseFiltered = userDTO(response);
+      httResponse(res, responseFiltered, "Event unsubscribed", 200);
+    } catch (error) {
+      throw new CustomErrors(error.message, 400);
+    }
+  },
 };
 
 export default {
@@ -175,4 +184,5 @@ export default {
   voteEvent: catched(eventsController.voteEvent),
   commentEvent: catched(eventsController.commentEvent),
   isRegistered: catched(eventsController.isRegistered),
+  unsubscribe: catched(eventsController.unsubscribe),
 };
