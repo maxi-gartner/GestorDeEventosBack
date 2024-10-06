@@ -11,6 +11,13 @@ import isUser from "../middlewares/isUser.js";
 
 const authRouter = express.Router();
 
+const consoleLog = (req, res, next) => {
+  console.log("paso por aca");
+  console.log("req.params", req.params);
+  console.log("req.user", req.user);
+  next();
+};
+
 authRouter.post(
   "/register",
   validator(registerSchema),
@@ -21,7 +28,7 @@ authRouter.post("/login", validator(loginSchema), authController.login);
 
 authRouter.delete("/:id", passportAuthenticate, authController.deleteUser);
 
-authRouter.get("/:id", passportAuthenticate, authController.getOneUser);
+authRouter.get("/:email", passportAuthenticate, authController.getOneUser);
 
 authRouter.post(
   "/loginWithToken",

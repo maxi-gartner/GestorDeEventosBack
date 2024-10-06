@@ -5,7 +5,7 @@ import mongoose from "mongoose";
 
 const authService = {
   async getUserByEmail(email) {
-    return await userSchema.findOne({ email });
+    return await userSchema.findOne({ email }).populate("events");
   },
 
   async checkPassword(password, hashPassword) {

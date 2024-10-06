@@ -5,6 +5,7 @@ import mongoose from "mongoose";
 import catched from "../utils/catched.js";
 import userDTO from "../DTO/userDTO.js";
 import jwt from "jsonwebtoken";
+import e from "express";
 
 const validateObjectId = (id) => mongoose.Types.ObjectId.isValid(id);
 
@@ -44,10 +45,21 @@ const authController = {
     httResponse(res, userFiltered, "User logged in", 200);
   },
 
-  async getUsers(req, res) {
-    const result = await authService.getUsers();
-    const responseFiltered = result.map(userDTO);
-    httResponse(res, responseFiltered, "Users retrieved", 200);
+  async getOneUser(req, res) {
+    try {
+      const { email } = req.params;
+      const result = await authService.getUserByEmail(email);
+      if (result) {
+        const responseFiltered = userDTO(result);
+        httResponse(res, responseFiltered, "User retrieved", 200);
+      } else if (!result) {
+        throw new CustomErrors("User not found", 400);
+      } else {
+        throw new CustomErrors("User not found", 404);
+      }
+    } catch (error) {
+      throw new CustomErrors(error.message || "User not found", 404);
+    }
   },
 
   async getUsers(req, res) {
