@@ -1,6 +1,7 @@
 function placeDTO(place) {
   return {
     data: {
+      id: place._id,
       name: place.name,
       address: place.address,
       photo: place.photo || null,

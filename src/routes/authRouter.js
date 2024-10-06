@@ -39,7 +39,7 @@ authRouter.post(
 authRouter.get("/", passportAuthenticate, authController.getUsers);
 
 authRouter.put(
-  "/update/:id",
+  "/update",
   passportAuthenticate,
   isUser,
   authController.updateUser

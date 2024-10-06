@@ -7,6 +7,12 @@ const passportAuthenticate = passport.authenticate("jwt", { session: false });
 import isAdmin from "../middlewares/isAdmin.js";
 
 const placesRouter = express.Router();
+const consoleLog = (req, res, next) => {
+  console.log("paso por aca");
+  console.log("req.params", req.params);
+  console.log("req.user", req.user);
+  next();
+};
 
 placesRouter.post(
   "/create",
@@ -17,6 +23,11 @@ placesRouter.post(
 );
 placesRouter.get("/:id", passportAuthenticate, placesController.getOnePlace);
 placesRouter.delete("/:id", passportAuthenticate, placesController.deletePlace);
-placesRouter.get("/", /* passportAuthenticate, */ placesController.getPlaces);
+placesRouter.get(
+  "/",
+  consoleLog,
+  passportAuthenticate,
+  placesController.getPlaces
+);
 
 export default placesRouter;

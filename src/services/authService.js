@@ -68,15 +68,14 @@ const authService = {
 
   async updateUser(id, data) {
     try {
-      if (!mongoose.Types.ObjectId.isValid(id)) {
-        throw new CustomErrors("Invalid user ID format", 400);
-      }
-
-      const user = await userSchema.findByIdAndUpdate(id, data, { new: true });
+      /*       console.log("id", id);
+      console.log("data", data); */
+      const user = await userSchema
+        .findByIdAndUpdate(id, data, { new: true })
+        .populate("events");
       if (!user) {
         throw new CustomErrors("User not found", 404);
       }
-
       return { success: true, data: user };
     } catch (error) {
       throw new CustomErrors(error.message || "Failed to update user", 400);

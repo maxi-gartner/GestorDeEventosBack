@@ -5,26 +5,15 @@ import mongoose from "mongoose";
 import authService from "./authService.js";
 
 const eventService = {
-  async createEvent(data) {
-    const {
-      place,
-      date,
-      name,
-      photo,
-      description,
-      attendees = [],
-      minimumAge,
-      organizer,
-    } = data;
-
+  async createEvent(data, organizer) {
+    const { place, date, name, description, minimumAge, photo } = data;
     try {
       const event = await eventSchema.create({
         place,
         date,
         name,
-        photo: photo || null,
         description,
-        attendees,
+        photo,
         minimumAge,
         organizer,
       });

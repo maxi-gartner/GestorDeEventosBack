@@ -82,38 +82,16 @@ const authController = {
   },
 
   async updateUser(req, res) {
-    const { id } = req.params;
-    const authenticatedUser = req.user;
-    const { password, ...updateFields } = req.body;
-
-    if (authenticatedUser.role !== "admin") {
-      if (req.body.role) {
-        throw new CustomErrors("Users cannot update their role", 400);
-      }
-      if (password) {
-        throw new CustomErrors(
-          "Password must be updated via the password change endpoint",
-          400
-        );
-      }
+    try {
+      console.log(req.body);
+      const response = await authService.updateUser(req.user._id, req.body);
+      //console.log("response", response);
+      const responseFiltered = userDTO(response.data);
+      //console.log("responseFiltered", responseFiltered);
+      httResponse(res, responseFiltered, "User updated", 200);
+    } catch {
+      throw new CustomErrors("Invalid user ID format", 400);
     }
-
-    if (authenticatedUser.role === "admin") {
-      if (password) {
-        throw new CustomErrors(
-          "Password must be updated via the password change endpoint",
-          400
-        );
-      }
-    }
-
-    const result = await authService.updateUser(id, updateFields);
-
-    if (!result.success) {
-      throw new CustomErrors(result.error, 400);
-    }
-    const responseFiltered = userDTO(result.data);
-    httResponse(res, responseFiltered, "User updated", 200);
   },
 
   async updatePassword(req, res) {

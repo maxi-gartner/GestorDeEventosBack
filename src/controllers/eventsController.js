@@ -8,7 +8,8 @@ import userDTO from "../DTO/userDTO.js";
 
 const eventsController = {
   async createEvent(req, res) {
-    const result = await eventService.createEvent(req.body);
+    const id = req.user._id;
+    const result = await eventService.createEvent(req.body, id);
     if (!result.success) throw new CustomErrors(result.error, 400);
     const responseFiltered = eventDTO(result.data);
     httResponse(res, responseFiltered, "Event created", 200);
