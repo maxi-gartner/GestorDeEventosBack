@@ -5,11 +5,11 @@ import mongoose from "mongoose";
 
 const authService = {
   async getUserByEmail(email) {
-    console.log("Search email....");
-    return await userSchema.findOne({ email });
+    return await userSchema.findOne({ email }).populate("events");
   },
 
   async checkPassword(password, hashPassword) {
+    console.log("password", password, "hashPassword", hashPassword);
     return bcrypt.compareSync(password || "", hashPassword);
   },
 
@@ -52,10 +52,6 @@ const authService = {
 
   async deleteUser(id) {
     try {
-      if (!mongoose.Types.ObjectId.isValid(id)) {
-        throw new CustomErrors("Invalid user ID format", 400);
-      }
-
       const user = await userSchema.findByIdAndDelete(id);
       if (!user) {
         throw new CustomErrors("User not found", 404);
@@ -69,15 +65,12 @@ const authService = {
 
   async updateUser(id, data) {
     try {
-      if (!mongoose.Types.ObjectId.isValid(id)) {
-        throw new CustomErrors("Invalid user ID format", 400);
-      }
-
-      const user = await userSchema.findByIdAndUpdate(id, data, { new: true });
+      const user = await userSchema
+        .findByIdAndUpdate(id, data, { new: true })
+        .populate("events");
       if (!user) {
         throw new CustomErrors("User not found", 404);
       }
-
       return { success: true, data: user };
     } catch (error) {
       throw new CustomErrors(error.message || "Failed to update user", 400);
@@ -85,7 +78,6 @@ const authService = {
   },
 
   async searchUserById(id) {
-    console.log("objectId", id);
     if (!mongoose.Types.ObjectId.isValid(id)) {
       throw new CustomErrors("Invalid user ID format", 400);
     }

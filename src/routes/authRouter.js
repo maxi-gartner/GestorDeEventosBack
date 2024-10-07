@@ -8,6 +8,7 @@ import validator from "../validator/validator.js";
 import passport from "../middlewares/passport/passport.js";
 const passportAuthenticate = passport.authenticate("jwt", { session: false });
 import isUser from "../middlewares/isUser.js";
+import isAdmin from "../middlewares/isAdmin.js";
 
 const authRouter = express.Router();
 
@@ -19,17 +20,10 @@ authRouter.post(
 
 authRouter.post("/login", validator(loginSchema), authController.login);
 
-authRouter.delete("/:id", passportAuthenticate, authController.deleteUser);
-
-authRouter.get("/:id", passportAuthenticate, authController.getOneUser);
-
-authRouter.get("/", passportAuthenticate, authController.getUsers);
-
-authRouter.put(
-  "/update/:id",
+authRouter.post(
+  "/loginWithToken",
   passportAuthenticate,
-  isUser,
-  authController.updateUser
+  authController.loginWithToken
 );
 
 authRouter.post(
@@ -38,5 +32,25 @@ authRouter.post(
   isUser,
   authController.updatePassword
 );
+
+authRouter.delete("/:email", passportAuthenticate, authController.deleteUser);
+
+authRouter.put(
+  "/update",
+  passportAuthenticate,
+  isUser,
+  authController.updateUser
+);
+
+authRouter.put(
+  "/adminUpdateUser/:email",
+  passportAuthenticate,
+  isAdmin,
+  authController.adminUpdateUser
+);
+
+authRouter.get("/:email", passportAuthenticate, authController.getOneUser);
+
+authRouter.get("/", passportAuthenticate, authController.getUsers);
 
 export default authRouter;

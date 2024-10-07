@@ -1,28 +1,19 @@
 import eventSchema from "../models/eventSchema.js";
 import userSchema from "../models/userSchema.js";
 import CustomErrors from "../utils/customError.js";
+import mongoose from "mongoose";
+import authService from "./authService.js";
 
 const eventService = {
-  async createEvent(data) {
-    const {
-      place,
-      date,
-      name,
-      photo,
-      description,
-      attendees = [],
-      minimumAge,
-      organizer,
-    } = data;
-
+  async createEvent(data, organizer) {
+    const { place, date, name, description, minimumAge, photo } = data;
     try {
       const event = await eventSchema.create({
         place,
         date,
         name,
-        photo: photo || null,
         description,
-        attendees,
+        photo,
         minimumAge,
         organizer,
       });
@@ -111,6 +102,18 @@ const eventService = {
     return { success: true };
   },
 
+  async isRegistered(event, userId) {
+    if (!event || !event.attendees) {
+      return false;
+    }
+    const objectIdUser = new mongoose.Types.ObjectId(userId);
+
+    const isUserRegistered = event.attendees.some((attendee) => {
+      return attendee.equals(objectIdUser);
+    });
+
+    return isUserRegistered;
+  },
   async registerToEvent(userId, eventId) {
     try {
       // Buscar el evento y el usuario antes de intentar actualizar
@@ -206,6 +209,23 @@ const eventService = {
       return { success: true, data: event };
     } catch (error) {
       throw new CustomErrors(error.message || "Failed to add comment", 400);
+    }
+  },
+
+  async unsubscribe(eventId, user) {
+    try {
+      await userSchema.updateOne(
+        { _id: user._id },
+        { $pull: { events: eventId } }
+      );
+      await eventSchema.updateOne(
+        { _id: eventId },
+        { $pull: { attendees: user._id } }
+      );
+      const currentUserState = await authService.getUserByEmail(user.email);
+      return currentUserState;
+    } catch (error) {
+      throw new CustomErrors(error.message || "Failed to unsubscribe", 400);
     }
   },
 };

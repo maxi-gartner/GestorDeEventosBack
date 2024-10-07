@@ -10,6 +10,19 @@ import isUser from "../middlewares/isUser.js";
 
 const eventsRouter = express.Router();
 
+const consoleLog = (req, res, next) => {
+  console.log("paso por aca");
+  console.log("req", req);
+  console.log("req.user", req.user);
+  next();
+};
+
+eventsRouter.get(
+  "/registered/:id",
+  passportAuthenticate,
+  eventsController.isRegistered
+);
+
 eventsRouter.post(
   "/create",
   validator(eventSchema),
@@ -17,16 +30,20 @@ eventsRouter.post(
   isOrganizer,
   eventsController.createEvent
 );
+
+eventsRouter.post(
+  "/unsubscribe/:id",
+  passportAuthenticate,
+  eventsController.unsubscribe
+);
+
 eventsRouter.get(
   "/:id",
-  /*   (req, res, next) => {
-    console.log("Middleware de Passport activado");
-    passportAuthenticate(req, res, next);
-  }, */
-  eventsController.getOneEvent
+  /* passportAuthenticate, */ eventsController.getOneEvent
 );
 eventsRouter.put(
   "/update/:id",
+  consoleLog,
   passportAuthenticate,
   isCreator,
   eventsController.updateEvent

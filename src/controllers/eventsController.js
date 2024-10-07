@@ -4,11 +4,12 @@ import CustomErrors from "../utils/customError.js";
 import httResponse from "../utils/httResponse.js";
 import catched from "../utils/catched.js";
 import eventDTO from "../DTO/eventDTO.js";
-import eventSchema from "../models/eventSchema.js";
+import userDTO from "../DTO/userDTO.js";
 
 const eventsController = {
   async createEvent(req, res) {
-    const result = await eventService.createEvent(req.body);
+    const organizer = req.user._id;
+    const result = await eventService.createEvent(req.body, organizer);
     if (!result.success) throw new CustomErrors(result.error, 400);
     const responseFiltered = eventDTO(result.data);
     httResponse(res, responseFiltered, "Event created", 200);
@@ -36,9 +37,11 @@ const eventsController = {
   },
 
   async updateEvent(req, res) {
+    console.log("llego aca");
     const result = await eventService.updateEvent(req.params.id, req.body);
     if (!result.success) throw new CustomErrors(result.error, 400);
     const responseFiltered = eventDTO(result.data);
+    console.log("responseFiltered", responseFiltered);
     httResponse(res, responseFiltered, "Event updated", 200);
   },
 
@@ -144,6 +147,32 @@ const eventsController = {
       throw new CustomErrors("User not commented", 400);
     }
   },
+
+  async isRegistered(req, res) {
+    try {
+      const event = await eventService.searchaEventById(req.params.id);
+      const isUserRegistered = await eventService.isRegistered(
+        event,
+        req.user._id
+      );
+
+      return res.json({ isRegistered: isUserRegistered });
+    } catch (error) {
+      return res
+        .status(500)
+        .json({ error: "Error al verificar si está registrado" });
+    }
+  },
+
+  async unsubscribe(req, res) {
+    try {
+      const response = await eventService.unsubscribe(req.params.id, req.user);
+      const responseFiltered = userDTO(response);
+      httResponse(res, responseFiltered, "Event unsubscribed", 200);
+    } catch (error) {
+      throw new CustomErrors(error.message, 400);
+    }
+  },
 };
 
 export default {
@@ -155,4 +184,6 @@ export default {
   registerToEvent: catched(eventsController.registerToEvent),
   voteEvent: catched(eventsController.voteEvent),
   commentEvent: catched(eventsController.commentEvent),
+  isRegistered: catched(eventsController.isRegistered),
+  unsubscribe: catched(eventsController.unsubscribe),
 };
