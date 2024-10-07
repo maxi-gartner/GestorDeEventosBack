@@ -181,14 +181,17 @@ const eventService = {
 
   async voteEvent(eventId, vote) {
     try {
-      const event = await eventSchema.findByIdAndUpdate(
-        eventId,
-        {
-          $set: { "rating.totalRatings": vote.totalRatings },
-          $push: { "rating.voters": vote.voters },
-        },
-        { new: true }
-      );
+      const event = await eventSchema
+        .findByIdAndUpdate(
+          eventId,
+          {
+            $set: { "rating.totalRatings": vote.totalRatings },
+            $push: { "rating.voters": vote.voters },
+          },
+          { new: true }
+        )
+        .populate("place")
+        .populate("organizer");
 
       return { success: true, data: event };
     } catch (error) {

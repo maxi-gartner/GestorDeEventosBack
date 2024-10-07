@@ -11,8 +11,7 @@ import isUser from "../middlewares/isUser.js";
 const eventsRouter = express.Router();
 
 const consoleLog = (req, res, next) => {
-  console.log("paso por aca");
-  console.log("req", req);
+  console.log("req", req.body);
   console.log("req.user", req.user);
   next();
 };
@@ -43,7 +42,6 @@ eventsRouter.get(
 );
 eventsRouter.put(
   "/update/:id",
-  consoleLog,
   passportAuthenticate,
   isCreator,
   eventsController.updateEvent
