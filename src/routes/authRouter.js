@@ -12,13 +12,6 @@ import isAdmin from "../middlewares/isAdmin.js";
 
 const authRouter = express.Router();
 
-const consoleLog = (req, res, next) => {
-  console.log("paso por aca");
-  console.log("req.params", req.params);
-  console.log("req.user", req.user);
-  next();
-};
-
 authRouter.post(
   "/register",
   validator(registerSchema),

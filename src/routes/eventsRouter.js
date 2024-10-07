@@ -39,14 +39,11 @@ eventsRouter.post(
 
 eventsRouter.get(
   "/:id",
-  /*   (req, res, next) => {
-    console.log("Middleware de Passport activado");
-    passportAuthenticate(req, res, next);
-  }, */
-  eventsController.getOneEvent
+  /* passportAuthenticate, */ eventsController.getOneEvent
 );
 eventsRouter.put(
   "/update/:id",
+  consoleLog,
   passportAuthenticate,
   isCreator,
   eventsController.updateEvent

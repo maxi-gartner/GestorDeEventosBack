@@ -121,7 +121,6 @@ const authController = {
   async adminUpdateUser(req, res) {
     try {
       const email = req.params.email;
-      console.log("email", email);
       const user = await authService.getUserByEmail(email);
       console.log("user", user);
       const response = await authService.updateUser(user._id, req.body);

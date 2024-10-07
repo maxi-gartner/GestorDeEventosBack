@@ -37,9 +37,11 @@ const eventsController = {
   },
 
   async updateEvent(req, res) {
+    console.log("llego aca");
     const result = await eventService.updateEvent(req.params.id, req.body);
     if (!result.success) throw new CustomErrors(result.error, 400);
     const responseFiltered = eventDTO(result.data);
+    console.log("responseFiltered", responseFiltered);
     httResponse(res, responseFiltered, "Event updated", 200);
   },
 
@@ -153,11 +155,9 @@ const eventsController = {
         event,
         req.user._id
       );
-      console.log("response en isRegistered", isUserRegistered);
 
       return res.json({ isRegistered: isUserRegistered });
     } catch (error) {
-      console.error("Error en isRegistered:", error);
       return res
         .status(500)
         .json({ error: "Error al verificar si está registrado" });
