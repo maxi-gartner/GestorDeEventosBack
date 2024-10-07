@@ -1,13 +1,9 @@
 import authService from "../services/authService.js";
 import CustomErrors from "../utils/customError.js";
 import httResponse from "../utils/httResponse.js";
-import mongoose from "mongoose";
 import catched from "../utils/catched.js";
 import userDTO from "../DTO/userDTO.js";
 import jwt from "jsonwebtoken";
-import e from "express";
-
-const validateObjectId = (id) => mongoose.Types.ObjectId.isValid(id);
 
 const authController = {
   async createUser(req, res) {
@@ -121,6 +117,23 @@ const authController = {
       throw new CustomErrors("Invalid password", 400);
     }
   },
+
+  async adminUpdateUser(req, res) {
+    try {
+      const email = req.params.email;
+      console.log("email", email);
+      const user = await authService.getUserByEmail(email);
+      console.log("user", user);
+      const response = await authService.updateUser(user._id, req.body);
+      if (response.success === true) {
+        const allUsers = await authService.getUsers();
+        const responseFiltered = allUsers.data.map(userDTO);
+        httResponse(res, responseFiltered, "User updated", 200);
+      }
+    } catch {
+      throw new CustomErrors("Invalid user ID format", 400);
+    }
+  },
 };
 
 export default {
@@ -132,4 +145,5 @@ export default {
   updateUser: catched(authController.updateUser),
   updatePassword: catched(authController.updatePassword),
   loginWithToken: catched(authController.loginWithToken),
+  adminUpdateUser: catched(authController.adminUpdateUser),
 };
