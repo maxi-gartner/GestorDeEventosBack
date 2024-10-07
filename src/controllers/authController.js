@@ -73,21 +73,22 @@ const authController = {
   },
 
   async deleteUser(req, res) {
-    const { id } = req.params;
-    if (!validateObjectId(id))
-      throw new CustomErrors("Invalid user ID format", 400);
-    const result = await authService.deleteUser(id);
-    if (!result.success) throw new CustomErrors(result.error, 400);
-    httResponse(res, result.data, "User deleted", 200);
+    const { email } = req.params;
+    const user = await authService.getUserByEmail(email);
+    const result = await authService.deleteUser(user._id);
+    if (result.success === true) {
+      const newUsers = await authService.getUsers();
+      const responseFiltered = newUsers.data.map(userDTO);
+      httResponse(res, responseFiltered, "User deleted", 200);
+    } else {
+      throw new CustomErrors(result.error, 400);
+    }
   },
 
   async updateUser(req, res) {
     try {
-      console.log(req.body);
       const response = await authService.updateUser(req.user._id, req.body);
-      //console.log("response", response);
       const responseFiltered = userDTO(response.data);
-      //console.log("responseFiltered", responseFiltered);
       httResponse(res, responseFiltered, "User updated", 200);
     } catch {
       throw new CustomErrors("Invalid user ID format", 400);

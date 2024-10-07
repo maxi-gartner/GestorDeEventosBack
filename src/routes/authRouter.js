@@ -26,7 +26,7 @@ authRouter.post(
 
 authRouter.post("/login", validator(loginSchema), authController.login);
 
-authRouter.delete("/:id", passportAuthenticate, authController.deleteUser);
+authRouter.delete("/:email", passportAuthenticate, authController.deleteUser);
 
 authRouter.get("/:email", passportAuthenticate, authController.getOneUser);
 

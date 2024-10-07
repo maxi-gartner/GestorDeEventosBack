@@ -51,10 +51,6 @@ const authService = {
 
   async deleteUser(id) {
     try {
-      if (!mongoose.Types.ObjectId.isValid(id)) {
-        throw new CustomErrors("Invalid user ID format", 400);
-      }
-
       const user = await userSchema.findByIdAndDelete(id);
       if (!user) {
         throw new CustomErrors("User not found", 404);
@@ -68,8 +64,6 @@ const authService = {
 
   async updateUser(id, data) {
     try {
-      /*       console.log("id", id);
-      console.log("data", data); */
       const user = await userSchema
         .findByIdAndUpdate(id, data, { new: true })
         .populate("events");
@@ -83,7 +77,6 @@ const authService = {
   },
 
   async searchUserById(id) {
-    console.log("objectId", id);
     if (!mongoose.Types.ObjectId.isValid(id)) {
       throw new CustomErrors("Invalid user ID format", 400);
     }
