@@ -39,7 +39,16 @@ const eventService = {
       const event = await eventSchema
         .findById(id)
         .populate("place")
-        .populate("organizer");
+        .populate("attendees")
+        .populate("organizer")
+        .populate({
+          path: "rating.voters.userId",
+          select: "name lastname",
+        })
+        .populate({
+          path: "comments.userId",
+          select: "name lastname",
+        });
 
       if (!event) {
         throw new CustomErrors("Event not found", 404);
@@ -201,13 +210,25 @@ const eventService = {
 
   async comentEvent(data, eventId) {
     try {
-      const event = await eventSchema.findByIdAndUpdate(
-        eventId,
-        {
-          $push: { comments: { userId: data.userId, comment: data.comment } },
-        },
-        { new: true }
-      );
+      const event = await eventSchema
+        .findByIdAndUpdate(
+          eventId,
+          {
+            $push: { comments: { userId: data.userId, comment: data.comment } },
+          },
+          { new: true }
+        )
+        .populate("place")
+        .populate("attendees")
+        .populate("organizer")
+        .populate({
+          path: "rating.voters.userId",
+          select: "name lastname",
+        })
+        .populate({
+          path: "comments.userId",
+          select: "name lastname",
+        });
 
       return { success: true, data: event };
     } catch (error) {
