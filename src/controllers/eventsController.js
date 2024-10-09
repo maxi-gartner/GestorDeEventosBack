@@ -37,11 +37,9 @@ const eventsController = {
   },
 
   async updateEvent(req, res) {
-    console.log("llego aca");
     const result = await eventService.updateEvent(req.params.id, req.body);
     if (!result.success) throw new CustomErrors(result.error, 400);
     const responseFiltered = eventDTO(result.data);
-    console.log("responseFiltered", responseFiltered);
     httResponse(res, responseFiltered, "Event updated", 200);
   },
 
