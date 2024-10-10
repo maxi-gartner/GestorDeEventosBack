@@ -43,11 +43,11 @@ const eventService = {
         .populate("organizer")
         .populate({
           path: "rating.voters.userId",
-          select: "name lastname photo -_id",
+          select: "name lastname photo email -_id",
         })
         .populate({
           path: "comments.userId",
-          select: "name lastname photo -_id",
+          select: "name lastname photo email -_id",
         });
 
       if (!event) {
@@ -173,12 +173,20 @@ const eventService = {
 
   async averageRating(voters, vote) {
     try {
-      const existingVotes = voters.map((voter) => voter.vote);
+      const existingVotes = voters.map((voter) => parseInt(voter.vote, 10));
+      console.log("existingVotes", existingVotes);
+
       const totalVotes = existingVotes.length + 1;
+      console.log("totalVotes", totalVotes);
+
+      const numericVote = parseInt(vote, 10);
+
       const newTotal =
-        existingVotes.reduce((acc, vote) => acc + vote, 0) + vote;
+        existingVotes.reduce((acc, currentVote) => acc + currentVote, 0) +
+        numericVote;
 
       const result = newTotal / totalVotes;
+
       return result;
     } catch (error) {
       throw new CustomErrors(
@@ -204,11 +212,11 @@ const eventService = {
         .populate("organizer")
         .populate({
           path: "rating.voters.userId",
-          select: "name lastname photo -_id",
+          select: "name lastname photo email -_id",
         })
         .populate({
           path: "comments.userId",
-          select: "name lastname photo -_id",
+          select: "name lastname photo email -_id",
         });
 
       return { success: true, data: event };
@@ -232,11 +240,11 @@ const eventService = {
         .populate("organizer")
         .populate({
           path: "rating.voters.userId",
-          select: "name lastname photo -_id",
+          select: "name lastname photo email -_id",
         })
         .populate({
           path: "comments.userId",
-          select: "name lastname photo -_id",
+          select: "name lastname photo email -_id",
         });
 
       return { success: true, data: event };
