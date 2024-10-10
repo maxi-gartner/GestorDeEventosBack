@@ -200,7 +200,16 @@ const eventService = {
           { new: true }
         )
         .populate("place")
-        .populate("organizer");
+        .populate("attendees")
+        .populate("organizer")
+        .populate({
+          path: "rating.voters.userId",
+          select: "name lastname photo -_id",
+        })
+        .populate({
+          path: "comments.userId",
+          select: "name lastname photo -_id",
+        });
 
       return { success: true, data: event };
     } catch (error) {
