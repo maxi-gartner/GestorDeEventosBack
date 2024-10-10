@@ -43,11 +43,11 @@ const eventService = {
         .populate("organizer")
         .populate({
           path: "rating.voters.userId",
-          select: "name lastname",
+          select: "name lastname photo -_id",
         })
         .populate({
           path: "comments.userId",
-          select: "name lastname",
+          select: "name lastname photo -_id",
         });
 
       if (!event) {
