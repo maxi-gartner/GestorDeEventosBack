@@ -9,7 +9,6 @@
   <li><strong>MongoDB</strong> 🍃 - Base de datos NoSQL para almacenar eventos y usuarios.</li>
   <li><strong>Mongoose</strong> - ODM para modelar la base de datos en MongoDB.</li>
   <li><strong>JWT</strong> 🔒 - Autenticación basada en JSON Web Tokens.</li>
-  <li><strong>Cloudinary</strong> ☁️ - Almacenamiento de imágenes en la nube.</li>
 </ul>
 
 
@@ -73,7 +72,6 @@
   <li>🔒 <strong>Autenticación Segura</strong>: Usando JWT para proteger rutas y recursos.</li>
   <li>📅 <strong>Gestión de Eventos</strong>: CRUD completo para la gestión de eventos.</li>
   <li>📍 <strong>Gestión de Lugares</strong>: Manejá lugares donde se realizan los eventos.</li>
-  <li>☁️ <strong>Almacenamiento en la Nube</strong>: Imágenes de los eventos almacenadas en Cloudinary.</li>
   <li>🗂️ <strong>Base de Datos NoSQL</strong>: MongoDB para una gestión eficiente de datos.</li>
 </ul>
 
