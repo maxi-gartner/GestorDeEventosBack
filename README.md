@@ -61,7 +61,7 @@
 │   │   ├── placeSchemaJoi.js    # Validación con Joi para lugares
 │   │   └── userSchemaJoi.js     # Validación con Joi para usuarios
 │   └── validator.js                # Middleware para validar los datos de entrada usando los esquemas Joi
-├── .env                         # Variables de entorno (no se sube a git)
+├── .env                         # Variables de entorno (no lo subo a git)
 └── package.json                 # Dependencias y scripts del proyecto
 
 </code></pre>
