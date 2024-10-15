@@ -33,8 +33,6 @@ const placesController = {
   },
 
   async updatePlace(req, res) {
-    console.log("req.params.id", req.params.id);
-    console.log("req.body", req.body);
     const result = await placeService.updatePlace(req.params.id, req.body);
     if (!result.success) throw new CustomErrors(result.error, 400);
     const responseFiltered = placeDTO(result.data);

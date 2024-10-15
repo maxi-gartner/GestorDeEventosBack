@@ -9,7 +9,6 @@ const authService = {
   },
 
   async checkPassword(password, hashPassword) {
-    console.log("password", password, "hashPassword", hashPassword);
     return bcrypt.compareSync(password || "", hashPassword);
   },
 

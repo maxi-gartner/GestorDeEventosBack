@@ -122,7 +122,6 @@ const authController = {
     try {
       const email = req.params.email;
       const user = await authService.getUserByEmail(email);
-      console.log("user", user);
       const response = await authService.updateUser(user._id, req.body);
       if (response.success === true) {
         const allUsers = await authService.getUsers();

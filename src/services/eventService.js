@@ -174,10 +174,8 @@ const eventService = {
   async averageRating(voters, vote) {
     try {
       const existingVotes = voters.map((voter) => parseInt(voter.vote, 10));
-      console.log("existingVotes", existingVotes);
 
       const totalVotes = existingVotes.length + 1;
-      console.log("totalVotes", totalVotes);
 
       const numericVote = parseInt(vote, 10);
 
