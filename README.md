@@ -12,67 +12,59 @@
   <li><strong>Cloudinary</strong> ☁️ - Almacenamiento de imágenes en la nube.</li>
 </ul>
 
-<h2>🛠️ Instalación y Uso</h2>
 
-<p>Seguí estos pasos para correr el proyecto de backend en tu entorno local:</p>
-
-<ol>
-  <li>Cloná el repositorio:</li>
-
-  <pre><code>git clone https://github.com/maxi-gartner/GestorDeEventosBack.git</code></pre>
-
-  <li>Instalá las dependencias:</li>
-
-  <pre><code>npm install</code></pre>
-
-  <li>Configura las variables de entorno:</li>
-
-  <p>Crea un archivo <code>.env</code> en la raíz del proyecto con las siguientes variables:</p>
-
-  <pre><code>
-    PORT=4000
-    MONGO_URI=tu_url_de_mongoDB
-    JWT_SECRET=tu_secreto_para_JWT
-    CLOUDINARY_CLOUD_NAME=tu_nombre_de_cloudinary
-    CLOUDINARY_API_KEY=tu_api_key
-    CLOUDINARY_API_SECRET=tu_api_secret
-  </code></pre>
-
-  <li>Iniciá el servidor localmente:</li>
-
-  <pre><code>npm start</code></pre>
-
-  <p>El servidor debería estar corriendo en <a href="http://localhost:4000">http://localhost:4000</a> 🎉.</p>
 </ol>
 
 <h2>🗃️ Estructura del Proyecto</h2>
 
 <pre><code>
+├── config/
+│   ├── db.js                    # Conexión a la base de datos MongoDB
 ├── controllers/
-│   ├── authController.js        # Controlador para la autenticación de usuarios
+│   ├── authController.js        # Controlador para la gestión de usuarios
 │   ├── eventController.js       # Controlador para la gestión de eventos
 │   ├── placeController.js       # Controlador para la gestión de lugares
-│   └── userController.js        # Controlador para la gestión de usuarios
 ├── models/
 │   ├── Event.js                 # Modelo de evento
 │   ├── Place.js                 # Modelo de lugar
 │   └── User.js                  # Modelo de usuario
+├── DTO/
+│   ├── eventDTO.js              # DTO de evento
+│   ├── PlaceDTO.js              # DTO de lugar
+│   └── UserDTO.js               # DTO de usuario
+├── middleware/
+│   ├── passport/
+│   │   └── passport.js          # Configuración de autenticación con Passport.js
+│   ├── IsCreator.js             # Middleware para verificar si el usuario es el creador del evento
+│   ├── isOrganizer.js           # Middleware para verificar si el usuario es el organizador de un evento
+│   └── isUser.js                # Middleware para verificar si el usuario está autenticado
+├── models/
+│   ├── eventSchema.js           # Esquema de Mongoose para el modelo de evento
+│   ├── placeSchema.js           # Esquema de Mongoose para el modelo de lugar
+│   └── userSchema.js            # Esquema de Mongoose para el modelo de usuario
 ├── routes/
 │   ├── authRoutes.js            # Rutas para autenticación
 │   ├── eventRoutes.js           # Rutas para eventos
 │   ├── placeRoutes.js           # Rutas para lugares
 │   └── userRoutes.js            # Rutas para usuarios
 ├── services/
-│   ├── cloudinary.js            # Configuración de Cloudinary
-│   └── jwt.js                   # Funciones relacionadas con JWT
-├── middleware/
-│   ├── authMiddleware.js        # Middleware de autenticación
-│   └── errorMiddleware.js       # Middleware para manejo de errores
-├── config/
-│   ├── db.js                    # Conexión a la base de datos MongoDB
+│   ├── eventService.js          # Lógica para peticiones de eventos
+│   ├── placeService.js          # Lógica para peticiones de lugares
+│   └── userService.js           # Lógica para peticiones de usuarios
+├── utils/
+│   ├── catched.js               # Middleware para manejar las excepciones de forma centralizada
+│   ├── customError.js           # Clase personalizada para la gestión de errores
+│   ├── handleErrors.js          # Función para capturar y procesar los errores en las rutas
+│   └── httpResponse.js          # Utilidad para estructurar las respuestas HTTP
+├── validator/
+│   ├── schemas/
+│   │   ├── eventSchemaJoi.js    # Validación con Joi para eventos
+│   │   ├── placeSchemaJoi.js    # Validación con Joi para lugares
+│   │   └── userSchemaJoi.js     # Validación con Joi para usuarios
+│   └── validator.js                # Middleware para validar los datos de entrada usando los esquemas Joi
 ├── .env                         # Variables de entorno (no se sube a git)
-├── server.js                    # Configuración e inicialización del servidor
 └── package.json                 # Dependencias y scripts del proyecto
+
 </code></pre>
 
 <h2>🚩 Características Principales</h2>
